@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCGRH — Licencias y Permisos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/style.css"/>
+</head>
+<body>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="sidebar-brand-text"><h2>SCGRH</h2><p>Recursos Humanos</p></div>
+    </div>
+    <nav>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Principal</p>
+        <a href="/dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Organización</p>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
+        <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Personas</p>
+        <a href="/colaboradores.html" class="nav-item"><i class="fa-solid fa-users"></i> Colaboradores</a>
+        <a href="/contratos.html"     class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="#" class="nav-item disabled"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Operaciones</p>
+        <a href="/turnos.html"      class="nav-item"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
+        <a href="/marcaciones.html" class="nav-item"><i class="fa-solid fa-clock"></i> Asistencias</a>
+        <a href="/vacaciones.html"  class="nav-item active"><i class="fa-solid fa-umbrella-beach"></i> Vacaciones y Licencias</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUsername">...</div>
+          <div class="user-role" id="sidebarRole">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-briefcase-medical" style="color:var(--success);margin-right:10px"></i>Licencias y Permisos</h1>
+        <p>Registra certificados médicos, licencias y autorizaciones cortas de salida</p>
+      </div>
+    </header>
+    <main class="page-content">
+
+      <!-- Sub-navegación simple -->
+      <div style="display: flex; gap: 10px; margin-bottom: 24px;">
+        <a href="/vacaciones.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-sun"></i> Saldos y Solicitudes Vacacionales</a>
+        <a href="/licencias.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-briefcase-medical"></i> Licencias y Permisos</a>
+      </div>
+
+      <!-- SECCIÓN 1: LICENCIAS (POR DÍAS) -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Gestión de Licencias</h2>
+          <p>Licencias por días completos (médicas, paternidad/maternidad, luto, etc.)</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateLicencia()">
+          <i class="fa-solid fa-plus"></i> Nueva Licencia
+        </button>
+      </div>
+
+      <div class="table-container" style="margin-bottom: 40px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Colaborador</th>
+              <th>Tipo de Licencia</th>
+              <th>Fecha Inicio</th>
+              <th>Fecha Fin</th>
+              <th>Días Totales</th>
+              <th>Motivo / Sustento</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaLicenciasBody"></tbody>
+        </table>
+      </div>
+
+      <!-- SECCIÓN 2: PERMISOS (POR HORAS) -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Permisos Laborales</h2>
+          <p>Permisos cortos por horas (citas médicas, trámites, salidas cortas)</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreatePermiso()">
+          <i class="fa-solid fa-clock"></i> Solicitar Permiso
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Colaborador</th>
+              <th>Fecha</th>
+              <th>Intervalo Horario</th>
+              <th>Motivo</th>
+              <th>Con Goce</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaPermisosBody"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- MODAL CREAR LICENCIA -->
+<div class="modal-overlay" id="modalLicencia">
+  <div class="modal">
+    <div class="modal-header">
+      <div><h3>Registrar Licencia Laboral</h3><p>Ingresa los detalles y fechas del certificado de licencia</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalLicencia')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formLicencia" onsubmit="submitLicencia(event)">
+      <div class="modal-body">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label>Contrato de Colaborador *</label>
+            <select class="form-control" id="lContrato" required><option value="">Seleccionar...</option></select>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de Licencia *</label>
+            <select class="form-control" id="lTipo" required><option value="">Seleccionar...</option></select>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de Inicio *</label>
+            <input class="form-control" id="lFechaInicio" type="date" required onchange="calcularDiasLicencia()"/>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha Fin *</label>
+            <input class="form-control" id="lFechaFin" type="date" required onchange="calcularDiasLicencia()"/>
+          </div>
+
+          <div class="form-group">
+            <label>Días Totales *</label>
+            <input class="form-control" id="lDias" type="number" readonly style="background:var(--bg-surface)"/>
+          </div>
+
+          <div class="form-group">
+            <label>Certificado / Documento de Sustento URL</label>
+            <input class="form-control" id="lSustento" type="text" placeholder="Ej: https://drive.google.com/doc-sustento"/>
+          </div>
+
+          <div class="form-group">
+            <label>Detalle del Motivo</label>
+            <textarea class="form-control" id="lMotivo" rows="2" placeholder="Detalla el motivo del descanso médico o licencia..."></textarea>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalLicencia')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitLicencia"><i class="fa-solid fa-floppy-disk"></i> Registrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL CREAR PERMISO -->
+<div class="modal-overlay" id="modalPermiso">
+  <div class="modal">
+    <div class="modal-header">
+      <div><h3>Solicitar Permiso por Horas</h3><p>Registra una salida corta del colaborador</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalPermiso')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formPermiso" onsubmit="submitPermiso(event)">
+      <div class="modal-body">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label>Contrato de Colaborador *</label>
+            <select class="form-control" id="pContrato" required><option value="">Seleccionar...</option></select>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha del Permiso *</label>
+            <input class="form-control" id="pFecha" type="date" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Hora Inicio *</label>
+            <input class="form-control" id="pHoraInicio" type="time" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Hora Fin *</label>
+            <input class="form-control" id="pHoraFin" type="time" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Remunerado / Con goce de haber</label>
+            <select class="form-control" id="pConGoce">
+              <option value="1">Con Goce de Haber</option>
+              <option value="0">Sin Goce de Haber</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Motivo del Permiso *</label>
+            <textarea class="form-control" id="pMotivo" rows="2" placeholder="Ej: Cita de salud ESSALUD, trámites notariales..." required></textarea>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalPermiso')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitPermiso"><i class="fa-solid fa-circle-check"></i> Enviar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL RESOLUCIÓN GENERAL -->
+<div class="modal-overlay confirm-modal" id="modalResolver">
+  <div class="modal">
+    <div class="modal-body" style="padding:32px 24px;text-align:center">
+      <div class="confirm-icon" style="background:rgba(45,126,248,0.1);color:var(--accent)"><i class="fa-solid fa-circle-question"></i></div>
+      <h3 style="margin-bottom:8px">Resolver Solicitud</h3>
+      <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:24px">¿Deseas Aprobar o Rechazar esta solicitud?</p>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn btn-secondary" onclick="closeModal('modalResolver')">Cancelar</button>
+        <button class="btn btn-danger" id="btnRechazar"><i class="fa-solid fa-xmark"></i> Rechazar</button>
+        <button class="btn btn-success" id="btnAprobar"><i class="fa-solid fa-check"></i> Aprobar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./js/auth.js"></script>
+<script src="./js/licencias.js"></script>
+</body>
+</html>

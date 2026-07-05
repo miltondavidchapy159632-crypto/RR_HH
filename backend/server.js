@@ -16,6 +16,8 @@ const contratoRoutes  = require('./routes/contratoRoutes');
 const turnoRoutes     = require('./routes/turnoRoutes');
 const horarioRoutes    = require('./routes/horarioRoutes');
 const marcacionRoutes = require('./routes/marcacionRoutes');
+const vacacionesRoutes = require('./routes/vacacionesRoutes');
+const licenciaRoutes  = require('./routes/licenciaRoutes');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -40,6 +42,8 @@ app.use('/api/contratos',  contratoRoutes);
 app.use('/api/turnos',     turnoRoutes);
 app.use('/api/horarios',   horarioRoutes);
 app.use('/api/marcaciones', marcacionRoutes);
+app.use('/api/vacaciones',  vacacionesRoutes);
+app.use('/api/licencias',   licenciaRoutes);
 
 // ── Ruta raíz → login ───────────────────────────────────
 app.get('/', (req, res) => {

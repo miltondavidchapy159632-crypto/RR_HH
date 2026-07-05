@@ -174,6 +174,17 @@ async function seed() {
       INSERT INTO cat_tipo_contrato (codigo, descripcion, requiere_fin) VALUES ('INDETERMINADO', 'Contrato a Plazo Indeterminado', 0);
     IF NOT EXISTS (SELECT 1 FROM cat_tipo_contrato WHERE codigo = 'PLAZO_FIJO')
       INSERT INTO cat_tipo_contrato (codigo, descripcion, requiere_fin) VALUES ('PLAZO_FIJO', 'Contrato a Plazo Fijo', 1);
+
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_licencia WHERE codigo = 'MEDICA')
+      INSERT INTO cat_tipo_licencia (codigo, descripcion, con_goce_haber, activo) VALUES ('MEDICA', 'Licencia por Enfermedad o Accidente', 1, 1);
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_licencia WHERE codigo = 'MATERNIDAD')
+      INSERT INTO cat_tipo_licencia (codigo, descripcion, con_goce_haber, activo) VALUES ('MATERNIDAD', 'Licencia por Maternidad', 1, 1);
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_licencia WHERE codigo = 'PATERNIDAD')
+      INSERT INTO cat_tipo_licencia (codigo, descripcion, con_goce_haber, activo) VALUES ('PATERNIDAD', 'Licencia por Paternidad', 1, 1);
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_licencia WHERE codigo = 'LUTO')
+      INSERT INTO cat_tipo_licencia (codigo, descripcion, con_goce_haber, activo) VALUES ('LUTO', 'Licencia por Fallecimiento de Familiar', 1, 1);
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_licencia WHERE codigo = 'PARTICULAR')
+      INSERT INTO cat_tipo_licencia (codigo, descripcion, con_goce_haber, activo) VALUES ('PARTICULAR', 'Licencia Particular (Sin Goce de Haber)', 0, 1);
   `);
   console.log('  ✔ Catálogos Maestros rellenados');
 

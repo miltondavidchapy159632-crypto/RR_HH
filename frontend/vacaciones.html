@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCGRH — Control de Vacaciones</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/style.css"/>
+</head>
+<body>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="sidebar-brand-text"><h2>SCGRH</h2><p>Recursos Humanos</p></div>
+    </div>
+    <nav>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Principal</p>
+        <a href="/dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Organización</p>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
+        <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Personas</p>
+        <a href="/colaboradores.html" class="nav-item"><i class="fa-solid fa-users"></i> Colaboradores</a>
+        <a href="/contratos.html"     class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="#" class="nav-item disabled"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Operaciones</p>
+        <a href="/turnos.html"      class="nav-item"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
+        <a href="/marcaciones.html" class="nav-item"><i class="fa-solid fa-clock"></i> Asistencias</a>
+        <a href="/vacaciones.html"  class="nav-item active"><i class="fa-solid fa-umbrella-beach"></i> Vacaciones y Licencias</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUsername">...</div>
+          <div class="user-role" id="sidebarRole">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-umbrella-beach" style="color:var(--accent);margin-right:10px"></i>Vacaciones y Licencias</h1>
+        <p>Administra los saldos vacacionales por periodo y las ausencias del personal</p>
+      </div>
+    </header>
+    <main class="page-content">
+
+      <!-- Sub-navegación simple -->
+      <div style="display: flex; gap: 10px; margin-bottom: 24px;">
+        <a href="/vacaciones.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-sun"></i> Saldos y Solicitudes Vacacionales</a>
+        <a href="/licencias.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-briefcase-medical"></i> Licencias y Permisos</a>
+      </div>
+
+      <!-- SECCIÓN 1: SALDOS VACACIONALES -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Saldos Vacacionales</h2>
+          <p>Días de vacaciones generados, gozados y saldos pendientes por periodo laboral</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateSaldo()">
+          <i class="fa-solid fa-plus"></i> Inicializar Periodo
+        </button>
+      </div>
+
+      <div class="table-container" style="margin-bottom: 40px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Colaborador</th>
+              <th>Contrato</th>
+              <th>Periodo Laboral</th>
+              <th>Días Generados</th>
+              <th>Días Gozados</th>
+              <th>Saldo Disponible</th>
+            </tr>
+          </thead>
+          <tbody id="tablaSaldosBody"></tbody>
+        </table>
+      </div>
+
+      <!-- SECCIÓN 2: SOLICITUDES DE VACACIONES -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Solicitudes de Vacaciones</h2>
+          <p>Historial de solicitudes de descanso vacacional enviadas por el personal</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateSolicitud()">
+          <i class="fa-solid fa-paper-plane"></i> Nueva Solicitud
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Colaborador</th>
+              <th>Periodo</th>
+              <th>Fecha Inicio</th>
+              <th>Fecha Fin</th>
+              <th>Días Solicitados</th>
+              <th>Motivo</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaSolicitudesBody"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- MODAL INICIALIZAR SALDO -->
+<div class="modal-overlay" id="modalSaldo">
+  <div class="modal">
+    <div class="modal-header">
+      <div><h3>Inicializar Periodo Vacacional</h3><p>Genera el acumulado de vacaciones para un colaborador</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalSaldo')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formSaldo" onsubmit="submitSaldo(event)">
+      <div class="modal-body">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label>Contrato de Colaborador *</label>
+            <select class="form-control" id="sContrato" required><option value="">Seleccionar...</option></select>
+          </div>
+
+          <div class="form-group">
+            <label>Periodo Laboral *</label>
+            <input class="form-control" id="sPeriodo" type="text" placeholder="Ej: 2025-2026" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Días Generados *</label>
+            <input class="form-control" id="sGenerados" type="number" value="30" min="1" required/>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalSaldo')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitSaldo"><i class="fa-solid fa-circle-check"></i> Inicializar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL SOLICITUD -->
+<div class="modal-overlay" id="modalSolicitud">
+  <div class="modal">
+    <div class="modal-header">
+      <div><h3>Nueva Solicitud de Vacaciones</h3><p>Registra un periodo de descanso del colaborador</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalSolicitud')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formSolicitud" onsubmit="submitSolicitud(event)">
+      <div class="modal-body">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label>Saldo / Periodo del Colaborador *</label>
+            <select class="form-control" id="vSaldoId" required onchange="actualizarDiasRestantes()"><option value="">Seleccionar...</option></select>
+            <span style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;display:block" id="diasDisponiblesInfo"></span>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de Inicio *</label>
+            <input class="form-control" id="vFechaInicio" type="date" required onchange="calcularDiasSolicitados()"/>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha Fin *</label>
+            <input class="form-control" id="vFechaFin" type="date" required onchange="calcularDiasSolicitados()"/>
+          </div>
+
+          <div class="form-group">
+            <label>Días Totales de Vacación *</label>
+            <input class="form-control" id="vDias" type="number" step="0.5" readonly style="background:var(--bg-surface)"/>
+          </div>
+
+          <div class="form-group">
+            <label>Motivo u Observaciones</label>
+            <textarea class="form-control" id="vMotivo" rows="2" placeholder="Asuntos familiares, descanso anual, etc."></textarea>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalSolicitud')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitSolicitud"><i class="fa-solid fa-paper-plane"></i> Enviar Solicitud</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL RESOLUCIÓN -->
+<div class="modal-overlay confirm-modal" id="modalResolver">
+  <div class="modal">
+    <div class="modal-body" style="padding:32px 24px;text-align:center">
+      <div class="confirm-icon" style="background:rgba(45,126,248,0.1);color:var(--accent)"><i class="fa-solid fa-circle-question"></i></div>
+      <h3 style="margin-bottom:8px">Resolver Solicitud</h3>
+      <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:24px">¿Deseas Aprobar o Rechazar esta solicitud de vacaciones?</p>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn btn-secondary" onclick="closeModal('modalResolver')">Cancelar</button>
+        <button class="btn btn-danger" onclick="resolverSolicitud('RECHAZADA')"><i class="fa-solid fa-xmark"></i> Rechazar</button>
+        <button class="btn btn-success" onclick="resolverSolicitud('APROBADA')"><i class="fa-solid fa-check"></i> Aprobar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./js/auth.js"></script>
+<script src="./js/vacaciones.js"></script>
+</body>
+</html>

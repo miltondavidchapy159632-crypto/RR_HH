@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SCGRH — Empresas</title>
+  <title>SCGRH — Sucursales</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="./css/style.css"/>
 </head>
 <body>
 <div class="layout">
-  <!-- SIDEBAR (igual en todas las páginas) -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
@@ -23,8 +22,8 @@
       </div>
       <div class="sidebar-section">
         <p class="sidebar-section-label">Organización</p>
-        <a href="/empresas.html"   class="nav-item active"><i class="fa-solid fa-building"></i> Empresas</a>
-        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item active"><i class="fa-solid fa-store"></i> Sucursales</a>
         <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
         <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
       </div>
@@ -56,117 +55,87 @@
   <div class="main-wrapper">
     <header class="topbar">
       <div class="topbar-title">
-        <h1><i class="fa-solid fa-building" style="color:var(--accent);margin-right:10px"></i>Empresas</h1>
-        <p>Administración de empresas del sistema</p>
-      </div>
-      <div class="topbar-actions">
-        <div class="btn-icon"><i class="fa-solid fa-bell"></i></div>
+        <h1><i class="fa-solid fa-store" style="color:var(--gold);margin-right:10px"></i>Sucursales</h1>
+        <p>Sedes y oficinas de las empresas</p>
       </div>
     </header>
-
     <main class="page-content">
       <div class="page-header">
         <div class="page-header-left">
-          <h2>Registro de Empresas</h2>
-          <p>Gestiona las empresas registradas en el sistema</p>
+          <h2>Registro de Sucursales</h2>
+          <p>Gestiona las sedes de cada empresa</p>
         </div>
-        <button class="btn btn-primary" onclick="openModal('modalEmpresa')" id="btnNueva">
-          <i class="fa-solid fa-plus"></i> Nueva Empresa
+        <button class="btn btn-primary" id="btnNueva" onclick="openCreate()">
+          <i class="fa-solid fa-plus"></i> Nueva Sucursal
         </button>
       </div>
 
       <div class="table-container">
         <div class="table-toolbar">
           <div class="table-toolbar-left">
-            <span class="table-title">Lista de Empresas</span>
+            <span class="table-title">Lista de Sucursales</span>
             <div class="search-box">
               <i class="fa-solid fa-magnifying-glass"></i>
-              <input type="text" id="searchInput" placeholder="Buscar empresa..." oninput="filterTable(this.value)"/>
+              <input type="text" id="searchInput" placeholder="Buscar sucursal..." oninput="filterTable(this.value)"/>
             </div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="loadEmpresas()">
-            <i class="fa-solid fa-rotate-right"></i> Actualizar
-          </button>
+          <button class="btn btn-secondary btn-sm" onclick="loadData()"><i class="fa-solid fa-rotate-right"></i></button>
         </div>
-
-        <div id="tableWrapper">
-          <table id="tableEmpresas">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>RUC</th>
-                <th>Razón Social</th>
-                <th>Nombre Comercial</th>
-                <th>Teléfono</th>
-                <th>Sucursales</th>
-                <th>Estado</th>
-                <th>Creado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tablaBody">
-              <tr><td colspan="9" style="text-align:center;padding:40px">
-                <div class="loader" style="margin:0 auto"></div>
-              </td></tr>
-            </tbody>
-          </table>
-        </div>
+        <table>
+          <thead><tr>
+            <th>#</th><th>Código</th><th>Nombre</th><th>Empresa</th>
+            <th>Dirección</th><th>Teléfono</th><th>Estado</th><th>Acciones</th>
+          </tr></thead>
+          <tbody id="tablaBody"></tbody>
+        </table>
       </div>
     </main>
   </div>
 </div>
 
-<!-- MODAL CREAR/EDITAR -->
-<div class="modal-overlay" id="modalEmpresa">
+<!-- MODAL -->
+<div class="modal-overlay" id="modalForm">
   <div class="modal">
     <div class="modal-header">
-      <div>
-        <h3 id="modalTitle">Nueva Empresa</h3>
-        <p id="modalSubtitle">Completa los datos de la empresa</p>
-      </div>
-      <button class="btn-close-modal" onclick="closeModal('modalEmpresa')"><i class="fa-solid fa-xmark"></i></button>
+      <div><h3 id="modalTitle">Nueva Sucursal</h3><p id="modalSubtitle">Completa los datos</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalForm')"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <form id="formEmpresa" onsubmit="submitForm(event)">
+    <form id="mainForm" onsubmit="submitForm(event)">
       <div class="modal-body">
         <div class="form-grid form-grid-2">
           <div class="form-group">
-            <label for="fRuc">RUC *</label>
-            <input class="form-control" id="fRuc" type="text" maxlength="11" placeholder="20123456789" required/>
+            <label>Empresa *</label>
+            <select class="form-control" id="fEmpresa" required><option value="">Seleccionar...</option></select>
           </div>
           <div class="form-group">
-            <label for="fActivo">Estado</label>
-            <select class="form-control" id="fActivo">
-              <option value="1">Activo</option>
-              <option value="0">Inactivo</option>
-            </select>
-          </div>
-          <div class="form-group span-2">
-            <label for="fRazonSocial">Razón Social *</label>
-            <input class="form-control" id="fRazonSocial" type="text" placeholder="Empresa SAC" required/>
-          </div>
-          <div class="form-group span-2">
-            <label for="fNombreComercial">Nombre Comercial</label>
-            <input class="form-control" id="fNombreComercial" type="text" placeholder="Nombre comercial"/>
-          </div>
-          <div class="form-group span-2">
-            <label for="fDireccion">Dirección Fiscal</label>
-            <input class="form-control" id="fDireccion" type="text" placeholder="Av. Principal 123, Lima"/>
+            <label>Estado</label>
+            <select class="form-control" id="fActivo"><option value="1">Activo</option><option value="0">Inactivo</option></select>
           </div>
           <div class="form-group">
-            <label for="fTelefono">Teléfono</label>
+            <label>Código *</label>
+            <input class="form-control" id="fCodigo" type="text" placeholder="SUC-001" required/>
+          </div>
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input class="form-control" id="fNombre" type="text" placeholder="Sede Principal" required/>
+          </div>
+          <div class="form-group span-2">
+            <label>Dirección</label>
+            <input class="form-control" id="fDireccion" type="text" placeholder="Av. Principal 123"/>
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
             <input class="form-control" id="fTelefono" type="text" placeholder="073-123456"/>
           </div>
           <div class="form-group">
-            <label for="fEmail">Email Corporativo</label>
-            <input class="form-control" id="fEmail" type="email" placeholder="admin@empresa.pe"/>
+            <label>Email</label>
+            <input class="form-control" id="fEmail" type="email" placeholder="sede@empresa.pe"/>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="closeModal('modalEmpresa')">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="btnSubmit">
-          <i class="fa-solid fa-floppy-disk"></i> Guardar
-        </button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalForm')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmit"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
       </div>
     </form>
   </div>
@@ -177,8 +146,8 @@
   <div class="modal">
     <div class="modal-body" style="padding:32px 24px;text-align:center">
       <div class="confirm-icon"><i class="fa-solid fa-trash"></i></div>
-      <h3 style="margin-bottom:8px">¿Eliminar empresa?</h3>
-      <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:24px">Esta acción desactivará la empresa del sistema.</p>
+      <h3 style="margin-bottom:8px">¿Eliminar sucursal?</h3>
+      <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:24px">Esta acción la desactivará del sistema.</p>
       <div style="display:flex;gap:10px;justify-content:center">
         <button class="btn btn-secondary" onclick="closeModal('modalConfirm')">Cancelar</button>
         <button class="btn btn-danger" id="btnConfirmDel"><i class="fa-solid fa-trash"></i> Eliminar</button>
@@ -188,6 +157,6 @@
 </div>
 
 <script src="./js/auth.js"></script>
-<script src="./js/empresas.js"></script>
+<script src="./js/sucursales.js"></script>
 </body>
 </html>

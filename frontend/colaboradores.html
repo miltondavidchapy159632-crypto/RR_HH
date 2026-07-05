@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCGRH — Colaboradores</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/style.css"/>
+</head>
+<body>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="sidebar-brand-text"><h2>SCGRH</h2><p>Recursos Humanos</p></div>
+    </div>
+    <nav>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Principal</p>
+        <a href="/dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Organización</p>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
+        <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Personas</p>
+        <a href="/colaboradores.html" class="nav-item active"><i class="fa-solid fa-users"></i> Colaboradores</a>
+        <a href="/contratos.html"     class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="#" class="nav-item disabled"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Operaciones</p>
+        <a href="#" class="nav-item disabled"><i class="fa-solid fa-clock"></i> Asistencia</a>
+        <a href="#" class="nav-item disabled"><i class="fa-solid fa-calendar-days"></i> Vacaciones</a>
+        <a href="#" class="nav-item disabled"><i class="fa-solid fa-money-bill-wave"></i> Nómina</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUsername">...</div>
+          <div class="user-role" id="sidebarRole">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-users" style="color:var(--accent);margin-right:10px"></i>Colaboradores</h1>
+        <p>Gestión integral de personal y expedientes</p>
+      </div>
+    </header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Fichas de Colaboradores</h2>
+          <p>Registra nuevos colaboradores y visualiza sus expedientes</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreate()">
+          <i class="fa-solid fa-user-plus"></i> Registrar Colaborador
+        </button>
+      </div>
+
+      <div class="table-container">
+        <div class="table-toolbar">
+          <div class="table-toolbar-left">
+            <span class="table-title">Lista de Colaboradores</span>
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="searchInput" placeholder="Buscar por DNI o Nombre..." oninput="filterTable(this.value)"/>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="loadData()"><i class="fa-solid fa-rotate-right"></i></button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Documento</th>
+              <th>Apellidos y Nombres</th>
+              <th>Email Corp.</th>
+              <th>Celular</th>
+              <th>Expediente</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaBody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- MODAL FORMULARIO -->
+<div class="modal-overlay" id="modalForm">
+  <div class="modal" style="max-width: 700px;">
+    <div class="modal-header">
+      <div><h3 id="modalTitle">Nuevo Colaborador</h3><p id="modalSubtitle">Ingresa los datos personales e información de nómina</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalForm')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="mainForm" onsubmit="submitForm(event)">
+      <div class="modal-body">
+        <div class="form-grid form-grid-2">
+          
+          <h4 class="form-group span-2" style="border-bottom: 1px solid var(--border); padding-bottom: 6px; font-size: 0.85rem; color: var(--accent);">
+            <i class="fa-solid fa-address-card"></i> Datos de Identidad
+          </h4>
+
+          <div class="form-group">
+            <label>Tipo Documento *</label>
+            <select class="form-control" id="fTipoDoc" required><option value="">Cargando...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Número Documento *</label>
+            <input class="form-control" id="fNroDoc" type="text" placeholder="12345678" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Nombre(s) *</label>
+            <input class="form-control" id="fNombres" type="text" placeholder="Nombres" required/>
+          </div>
+          <div class="form-group">
+            <label>Apellido Paterno *</label>
+            <input class="form-control" id="fApPaterno" type="text" placeholder="Apellido Paterno" required/>
+          </div>
+          <div class="form-group">
+            <label>Apellido Materno</label>
+            <input class="form-control" id="fApMaterno" type="text" placeholder="Apellido Materno"/>
+          </div>
+          <div class="form-group">
+            <label>Fecha de Nacimiento</label>
+            <input class="form-control" id="fFechaNac" type="date"/>
+          </div>
+
+          <div class="form-group">
+            <label>Sexo</label>
+            <select class="form-control" id="fSexo"><option value="">Seleccionar...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Estado Civil</label>
+            <select class="form-control" id="fEstadoCivil"><option value="">Seleccionar...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Nacionalidad</label>
+            <input class="form-control" id="fNacionalidad" type="text" value="Peruana"/>
+          </div>
+          <div class="form-group">
+            <label>Estado Ficha</label>
+            <select class="form-control" id="fEstado">
+              <option value="CANDIDATO">CANDIDATO</option>
+              <option value="ACTIVO">ACTIVO</option>
+              <option value="INACTIVO">INACTIVO</option>
+              <option value="CESADO">CESADO</option>
+            </select>
+          </div>
+
+          <h4 class="form-group span-2" style="border-bottom: 1px solid var(--border); padding-bottom: 6px; padding-top: 14px; font-size: 0.85rem; color: var(--accent);">
+            <i class="fa-solid fa-phone"></i> Contacto y Domicilio
+          </h4>
+          <div class="form-group">
+            <label>Email Personal</label>
+            <input class="form-control" id="fEmailPersonal" type="email" placeholder="correo@ejemplo.com"/>
+          </div>
+          <div class="form-group">
+            <label>Email Corporativo</label>
+            <input class="form-control" id="fEmailCorp" type="email" placeholder="colaborador@elsabor.pe"/>
+          </div>
+          <div class="form-group">
+            <label>Celular</label>
+            <input class="form-control" id="fCelular" type="text" placeholder="987654321"/>
+          </div>
+          <div class="form-group">
+            <label>Teléfono Fijo</label>
+            <input class="form-control" id="fFijo" type="text" placeholder="073-123456"/>
+          </div>
+          <div class="form-group span-2">
+            <label>Dirección</label>
+            <input class="form-control" id="fDireccion" type="text" placeholder="Calle, Av, Nro, Urb..."/>
+          </div>
+
+          <h4 class="form-group span-2" style="border-bottom: 1px solid var(--border); padding-bottom: 6px; padding-top: 14px; font-size: 0.85rem; color: var(--accent);">
+            <i class="fa-solid fa-credit-card"></i> Depósito y Previsión Social
+          </h4>
+          <div class="form-group">
+            <label>Banco</label>
+            <select class="form-control" id="fBanco"><option value="">Ninguno</option></select>
+          </div>
+          <div class="form-group">
+            <label>Tipo Cuenta Bancaria</label>
+            <select class="form-control" id="fTipoCuenta"><option value="">Ninguna</option></select>
+          </div>
+          <div class="form-group">
+            <label>Número de Cuenta</label>
+            <input class="form-control" id="fNroCuenta" type="text" placeholder="Cuenta Bancaria"/>
+          </div>
+          <div class="form-group">
+            <label>Cuenta CCI</label>
+            <input class="form-control" id="fCCI" type="text" placeholder="CCI"/>
+          </div>
+          <div class="form-group">
+            <label>AFP / ONP</label>
+            <select class="form-control" id="fAFP"><option value="">Ninguno</option></select>
+          </div>
+          <div class="form-group">
+            <label>Código CUSPP</label>
+            <input class="form-control" id="fCUSPP" type="text" placeholder="CUSPP"/>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalForm')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmit"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="modal-overlay confirm-modal" id="modalConfirm">
+  <div class="modal">
+    <div class="modal-body" style="padding:32px 24px;text-align:center">
+      <div class="confirm-icon"><i class="fa-solid fa-user-slash"></i></div>
+      <h3 style="margin-bottom:8px">¿Desactivar colaborador?</h3>
+      <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:24px">El estado de la ficha cambiará a 'INACTIVO'.</p>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn btn-secondary" onclick="closeModal('modalConfirm')">Cancelar</button>
+        <button class="btn btn-danger" id="btnConfirmDel"><i class="fa-solid fa-circle-minus"></i> Desactivar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./js/auth.js"></script>
+<script src="./js/colaboradores.js"></script>
+</body>
+</html>

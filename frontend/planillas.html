@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCGRH — Planillas y Nóminas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/style.css"/>
+</head>
+<body>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="sidebar-brand-text"><h2>SCGRH</h2><p>Recursos Humanos</p></div>
+    </div>
+    <nav>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Principal</p>
+        <a href="/dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Organización</p>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
+        <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Personas</p>
+        <a href="/colaboradores.html" class="nav-item"><i class="fa-solid fa-users"></i> Colaboradores</a>
+        <a href="/contratos.html"     class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="#" class="nav-item disabled"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Operaciones</p>
+        <a href="/turnos.html"      class="nav-item"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
+        <a href="/marcaciones.html" class="nav-item"><i class="fa-solid fa-clock"></i> Asistencias</a>
+        <a href="/vacaciones.html"  class="nav-item"><i class="fa-solid fa-umbrella-beach"></i> Vacaciones y Licencias</a>
+        <a href="/planillas.html"   class="nav-item active"><i class="fa-solid fa-money-check-dollar"></i> Nóminas y Planillas</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUsername">...</div>
+          <div class="user-role" id="sidebarRole">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-money-check-dollar" style="color:var(--accent);margin-right:10px"></i>Planillas y Nóminas</h1>
+        <p>Cálculo automático de salarios, retenciones de pensiones y descuentos por tardanzas</p>
+      </div>
+    </header>
+    <main class="page-content">
+
+      <!-- Sub-navegación simple -->
+      <div style="display: flex; gap: 10px; margin-bottom: 24px;">
+        <button class="btn btn-primary btn-sm" onclick="showTab('tab-planillas')"><i class="fa-solid fa-calculator"></i> Procesamiento Mensual</button>
+        <button class="btn btn-secondary btn-sm" onclick="showTab('tab-bancos')"><i class="fa-solid fa-building-columns"></i> Archivos de Pago Bancario</button>
+      </div>
+
+      <!-- TAB 1: PROCESAMIENTO MENSUAL -->
+      <div id="tab-planillas" class="tab-content">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Planillas Procesadas</h2>
+            <p>Calcula y aprueba las planillas de sueldos para el personal activo</p>
+          </div>
+          <button class="btn btn-primary" onclick="openCreatePlanilla()">
+            <i class="fa-solid fa-plus"></i> Nueva Planilla
+          </button>
+        </div>
+
+        <div class="table-container" style="margin-bottom: 30px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Periodo</th>
+                <th>Empresa</th>
+                <th>Sede</th>
+                <th>Tipo</th>
+                <th>Ingresos Totales</th>
+                <th>Descuentos Totales</th>
+                <th>Neto Consolidado</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaPlanillasBody"></tbody>
+          </table>
+        </div>
+
+        <!-- DETALLE DE LA PLANILLA SELECCIONADA -->
+        <div id="detallePlanillaSeccion" class="card" style="display:none; margin-top: 30px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:12px">
+            <div>
+              <h3 id="detPlanillaTitulo" style="font-size:1rem; font-weight:700">Detalle de la Planilla</h3>
+              <p style="font-size:0.75rem; color:var(--text-muted)">Cuentas individuales calculadas para el periodo</p>
+            </div>
+            <div style="display:flex; gap:10px">
+              <button class="btn btn-secondary btn-sm" id="btnCalcular" onclick="ejecutarCalculo()"><i class="fa-solid fa-rotate"></i> Calcular / Recalcular</button>
+              <button class="btn btn-success btn-sm" id="btnAprobar" onclick="ejecutarAprobacion()"><i class="fa-solid fa-circle-check"></i> Aprobar y Generar Boletas</button>
+            </div>
+          </div>
+          <div class="table-container" style="border:none">
+            <table>
+              <thead>
+                <tr>
+                  <th>Colaborador</th>
+                  <th>Contrato</th>
+                  <th>Sueldo Base</th>
+                  <th>Total Ingresos</th>
+                  <th>Total Descuentos</th>
+                  <th>Neto a Pagar</th>
+                  <th>Boleta</th>
+                </tr>
+              </thead>
+              <tbody id="tablaDetalleBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: ARCHIVOS BANCARIOS -->
+      <div id="tab-bancos" class="tab-content" style="display:none">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Archivos Bancarios de Transferencia</h2>
+            <p>Formatos de texto consolidados para transferencias masivas de sueldos</p>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Archivo Generado</th>
+                <th>Banco</th>
+                <th>Periodo de Nómina</th>
+                <th>Registros</th>
+                <th>Monto Total</th>
+                <th>Estado</th>
+                <th>Descargar</th>
+              </tr>
+            </thead>
+            <tbody id="tablaBancosBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- MODAL CREAR PLANILLA -->
+<div class="modal-overlay" id="modalPlanilla">
+  <div class="modal">
+    <div class="modal-header">
+      <div><h3>Procesar Nueva Planilla</h3><p>Ingresa los parámetros del periodo a calcular</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalPlanilla')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formPlanilla" onsubmit="submitPlanilla(event)">
+      <div class="modal-body">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label>Empresa *</label>
+            <select class="form-control" id="pEmpresa" required onchange="cargarSucursales()"><option value="">Seleccionar...</option></select>
+          </div>
+
+          <div class="form-group">
+            <label>Sucursal / Sede *</label>
+            <select class="form-control" id="pSucursal" required><option value="">Seleccionar empresa primero...</option></select>
+          </div>
+
+          <div class="form-group">
+            <label>Periodo Mensual (YYYY-MM) *</label>
+            <input class="form-control" id="pPeriodo" type="month" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de Planilla</label>
+            <select class="form-control" id="pTipo">
+              <option value="MENSUAL">Mensual Regular</option>
+              <option value="QUINCENAL">Adelanto Quincenal</option>
+              <option value="GRATIFICACION">Gratificaciones (Julio/Diciembre)</option>
+              <option value="CTS">Compensación por Tiempo de Servicio</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalPlanilla')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitPlanilla"><i class="fa-solid fa-calculator"></i> Crear Borrador</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL BOLETA DE PAGO -->
+<div class="modal-overlay" id="modalBoleta">
+  <div class="modal" style="max-width: 700px;">
+    <div class="modal-header" style="border-bottom: 2px solid var(--accent); padding-bottom: 15px;">
+      <div style="text-align: left;">
+        <h2 id="bEmpresa" style="font-size: 1.1rem; font-weight: 800; text-transform: uppercase;">EMPRESA SAC</h2>
+        <p id="bEmpresaRuc" style="font-size: 0.75rem; color: var(--text-muted)">RUC: 20123456789</p>
+      </div>
+      <div style="text-align: right;">
+        <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--accent);">BOLETA DE PAGO</h3>
+        <p id="bNroBoleta" style="font-size: 0.75rem; font-weight: 700; font-family: monospace;"></p>
+      </div>
+    </div>
+    <div class="modal-body" style="padding: 20px 0;">
+      
+      <!-- Datos Trabajador -->
+      <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 0.75rem; margin-bottom: 20px; background: var(--bg-surface); padding: 12px; border-radius: 8px;">
+        <div><strong>Colaborador:</strong> <span id="bColaborador"></span></div>
+        <div><strong>Periodo:</strong> <span id="bPeriodo"></span></div>
+        <div><strong>DNI/Documento:</strong> <span id="bNroDoc"></span></div>
+        <div><strong>Cargo:</strong> <span id="bCargo"></span></div>
+        <div><strong>Fecha Ingreso:</strong> <span id="bIngreso"></span></div>
+        <div><strong>Cód. Contrato:</strong> <span id="bContrato"></span></div>
+      </div>
+
+      <!-- Detalle Conceptos -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        
+        <!-- INGRESOS -->
+        <div>
+          <h4 style="border-bottom: 1.5px solid var(--success); padding-bottom: 4px; font-size: 0.8rem; margin-bottom: 10px; color: var(--success); font-weight: 700;">INGRESOS (Remuneraciones)</h4>
+          <div id="bIngresosList" style="font-size: 0.75rem; display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+
+        <!-- DESCUENTOS -->
+        <div>
+          <h4 style="border-bottom: 1.5px solid var(--danger); padding-bottom: 4px; font-size: 0.8rem; margin-bottom: 10px; color: var(--danger); font-weight: 700;">DESCUENTOS (Deducciones)</h4>
+          <div id="bDescuentosList" style="font-size: 0.75rem; display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+
+      </div>
+
+      <!-- Resumen Totales -->
+      <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; border-top: 1px dashed var(--border); padding-top: 15px; font-size: 0.78rem; text-align: center;">
+        <div><strong>Total Ingresos:</strong><br/><span id="bTotalIngresos" style="color:var(--success); font-weight:700"></span></div>
+        <div><strong>Total Descuentos:</strong><br/><span id="bTotalDescuentos" style="color:var(--danger); font-weight:700"></span></div>
+        <div style="background: var(--bg-surface); padding: 6px; border-radius: 6px;">
+          <strong>NETO A PAGAR:</strong><br/><span id="bNeto" style="color:var(--accent); font-weight:800; font-size: 0.9rem;"></span>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer" style="border-top: 1px solid var(--border); padding-top: 15px;">
+      <button class="btn btn-secondary" onclick="closeModal('modalBoleta')">Cerrar</button>
+      <button class="btn btn-primary" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir Boleta</button>
+    </div>
+  </div>
+</div>
+
+<script src="./js/auth.js"></script>
+<script src="./js/planillas.js"></script>
+</body>
+</html>

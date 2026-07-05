@@ -18,6 +18,7 @@ const horarioRoutes    = require('./routes/horarioRoutes');
 const marcacionRoutes = require('./routes/marcacionRoutes');
 const vacacionesRoutes = require('./routes/vacacionesRoutes');
 const licenciaRoutes  = require('./routes/licenciaRoutes');
+const planillaRoutes  = require('./routes/planillaRoutes');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -44,6 +45,7 @@ app.use('/api/horarios',   horarioRoutes);
 app.use('/api/marcaciones', marcacionRoutes);
 app.use('/api/vacaciones',  vacacionesRoutes);
 app.use('/api/licencias',   licenciaRoutes);
+app.use('/api/planillas',   planillaRoutes);
 
 // ── Ruta raíz → login ───────────────────────────────────
 app.get('/', (req, res) => {

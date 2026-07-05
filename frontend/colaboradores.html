@@ -59,17 +59,9 @@
         <h1><i class="fa-solid fa-users" style="color:var(--accent);margin-right:10px"></i>Colaboradores</h1>
         <p>Gestión integral de personal y expedientes</p>
       </div>
+      <button class="btn btn-primary" onclick="openCreate()"><i class="fa-solid fa-plus"></i> Registrar Colaborador</button>
     </header>
     <main class="page-content">
-      <div class="page-header">
-        <div class="page-header-left">
-          <h2>Fichas de Colaboradores</h2>
-          <p>Registra nuevos colaboradores y visualiza sus expedientes</p>
-        </div>
-        <button class="btn btn-primary" onclick="openCreate()">
-          <i class="fa-solid fa-user-plus"></i> Registrar Colaborador
-        </button>
-      </div>
 
       <div class="table-container">
         <div class="table-toolbar">
@@ -80,7 +72,7 @@
               <input type="text" id="searchInput" placeholder="Buscar por DNI o Nombre..." oninput="filterTable(this.value)"/>
             </div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="loadData()"><i class="fa-solid fa-rotate-right"></i></button>
+          <button class="btn btn-secondary btn-sm" onclick="loadData()"><i class="fa-solid fa-rotate-right"></i> Actualizar</button>
         </div>
         <table>
           <thead>

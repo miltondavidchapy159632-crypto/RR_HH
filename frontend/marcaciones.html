@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCGRH — Control de Asistencia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/style.css"/>
+  <style>
+    /* Reloj Biométrico Grid */
+    .asistencia-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 28px;
+    }
+    .clock-container {
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-surface) 100%);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 40px 30px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+    }
+    .digital-clock {
+      font-size: 3.2rem;
+      font-weight: 800;
+      font-family: monospace;
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(45,126,248,0.3);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .digital-date {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 30px;
+    }
+    .biometric-input-box {
+      width: 100%;
+      max-width: 320px;
+    }
+    .biometric-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: var(--radius);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: var(--transition);
+      margin-top: 12px;
+      color: #fff;
+    }
+    .biometric-btn.entrada {
+      background: linear-gradient(135deg, var(--success), #00A07A);
+      box-shadow: 0 4px 15px rgba(0,200,150,0.25);
+    }
+    .biometric-btn.entrada:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,200,150,0.35);
+    }
+    .biometric-btn.salida {
+      background: linear-gradient(135deg, var(--gold), #D08000);
+      box-shadow: 0 4px 15px rgba(240,165,0,0.25);
+    }
+    .biometric-btn.salida:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(240,165,0,0.35);
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="sidebar-brand-text"><h2>SCGRH</h2><p>Recursos Humanos</p></div>
+    </div>
+    <nav>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Principal</p>
+        <a href="/dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Organización</p>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
+        <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Personas</p>
+        <a href="/colaboradores.html" class="nav-item"><i class="fa-solid fa-users"></i> Colaboradores</a>
+        <a href="/contratos.html"     class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="#" class="nav-item disabled"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Operaciones</p>
+        <a href="/turnos.html"      class="nav-item"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
+        <a href="/marcaciones.html" class="nav-item active"><i class="fa-solid fa-clock"></i> Asistencias</a>
+        <a href="#" class="nav-item disabled"><i class="fa-solid fa-money-bill-wave"></i> Nómina</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUsername">...</div>
+          <div class="user-role" id="sidebarRole">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-clock" style="color:var(--success);margin-right:10px"></i>Control de Asistencia</h1>
+        <p>Historial de marcaciones e incidencias de la jornada laboral</p>
+      </div>
+    </header>
+    <main class="page-content">
+
+      <div class="asistencia-grid">
+        
+        <!-- COLUMNA 1: RELOJ BIOMÉTRICO (QUIOSCO) -->
+        <div class="clock-container">
+          <div class="digital-clock" id="reloj">00:00:00</div>
+          <div class="digital-date" id="fecha">cargando fecha...</div>
+
+          <div style="border-top: 1px solid var(--border); width: 100%; margin: 15px 0 25px;"></div>
+
+          <h3 style="font-size: 0.95rem; margin-bottom: 15px; font-weight: 700;">
+            <i class="fa-solid fa-fingerprint" style="color:var(--accent);margin-right:8px"></i>
+            Reloj Biométrico (Ingresa DNI)
+          </h3>
+
+          <div class="biometric-input-box">
+            <div class="form-group" style="text-align: left; margin-bottom: 14px;">
+              <label>DNI del Colaborador *</label>
+              <input class="form-control" type="text" id="bioDoc" maxlength="11" placeholder="Ingresa tu documento..." style="text-align: center; font-size: 1.1rem; font-weight: 700; height: 46px;"/>
+            </div>
+
+            <button class="biometric-btn entrada" onclick="marcarAsistencia('ENTRADA')">
+              <i class="fa-solid fa-right-to-bracket"></i> Marcar Entrada
+            </button>
+            <button class="biometric-btn salida" onclick="marcarAsistencia('SALIDA')">
+              <i class="fa-solid fa-right-from-bracket"></i> Marcar Salida
+            </button>
+          </div>
+        </div>
+
+        <!-- COLUMNA 2: HISTORIAL DE ASISTENCIA DIARIA -->
+        <div class="table-container">
+          <div class="table-toolbar">
+            <div class="table-toolbar-left">
+              <span class="table-title"><i class="fa-solid fa-list-check" style="margin-right: 8px;"></i>Marcaciones Recientes</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="loadData()"><i class="fa-solid fa-rotate-right"></i> Actualizar</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Colaborador</th>
+                <th>Fecha</th>
+                <th>Entrada / Salida</th>
+                <th>Tardanza</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaBody"></tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- MODAL JUSTIFICACIÓN -->
+<div class="modal-overlay" id="modalJustificar">
+  <div class="modal">
+    <div class="modal-header">
+      <div><h3>Justificar Incidencia</h3><p>Registra el motivo de la tardanza o inasistencia</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalJustificar')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formJustificar" onsubmit="submitJustificacion(event)">
+      <input type="hidden" id="jId"/>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Colaborador</label>
+            <input class="form-control" id="jColaborador" type="text" readonly style="background:var(--bg-surface); opacity:0.7"/>
+          </div>
+          <div class="form-group">
+            <label>Motivo de la Justificación *</label>
+            <textarea class="form-control" id="jJustificacion" rows="4" placeholder="Ej: Descanso médico por salud, falla de transporte público, etc." required style="resize: none;"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalJustificar')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-circle-check"></i> Registrar Justificación</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="./js/auth.js"></script>
+<script src="./js/marcaciones.js"></script>
+</body>
+</html>

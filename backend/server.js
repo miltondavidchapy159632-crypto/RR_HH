@@ -13,6 +13,9 @@ const cargoRoutes     = require('./routes/cargoRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const personaRoutes   = require('./routes/personaRoutes');
 const contratoRoutes  = require('./routes/contratoRoutes');
+const turnoRoutes     = require('./routes/turnoRoutes');
+const horarioRoutes    = require('./routes/horarioRoutes');
+const marcacionRoutes = require('./routes/marcacionRoutes');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -34,6 +37,9 @@ app.use('/api/cargos',     cargoRoutes);
 app.use('/api/dashboard',  dashboardRoutes);
 app.use('/api/personas',   personaRoutes);
 app.use('/api/contratos',  contratoRoutes);
+app.use('/api/turnos',     turnoRoutes);
+app.use('/api/horarios',   horarioRoutes);
+app.use('/api/marcaciones', marcacionRoutes);
 
 // ── Ruta raíz → login ───────────────────────────────────
 app.get('/', (req, res) => {

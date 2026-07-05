@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-//  SEED — Datos iniciales del sistema SCGRH
+//  SEED — Datos iniciales del sistema SCGRH (Incluye Asistencia y Catálogos)
 //  Ejecutar: node seed.js
 // ─────────────────────────────────────────────────────────────
 require('dotenv').config();
@@ -106,9 +106,94 @@ async function seed() {
           VALUES (@aid, @codigo, @nombre, @smin, @smax)
       `);
   }
-  console.log('  ✔ Cargos creados (5)');
+  console.log('  ✔ Cargos creadas (5)');
 
-  // 5. Rol Admin
+  // 5. Puestos (Plazas Libres)
+  const sucursalPiuraRes = await pool.request()
+    .input('c', sql.NVarChar, 'SUC-001')
+    .query('SELECT id FROM sucursales WHERE codigo = @c');
+  const sucursalPiuraId = sucursalPiuraRes.recordset[0].id;
+
+  const cargoMozRes = await pool.request()
+    .input('c', sql.NVarChar, 'CARG-MOZ')
+    .query('SELECT id FROM cargos WHERE codigo = @c');
+  const cargoMozId = cargoMozRes.recordset[0].id;
+
+  await pool.request()
+    .input('cargo_id',    sql.Int,      cargoMozId)
+    .input('sucursal_id', sql.Int,      sucursalPiuraId)
+    .input('codigo',      sql.NVarChar, 'PUESTO-MOZO-01')
+    .query(`
+      IF NOT EXISTS (SELECT 1 FROM puestos WHERE codigo = @codigo)
+        INSERT INTO puestos (cargo_id, sucursal_id, codigo, cantidad_plazas, plazas_ocupadas)
+        VALUES (@cargo_id, @sucursal_id, @codigo, 5, 0)
+    `);
+  console.log('  ✔ Puestos/Plazas creadas');
+
+  // 6. Catálogos Maestros (Documentos, Sexos, Estados Civil, AFP, Bancos)
+  await pool.request().query(`
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_documento WHERE codigo = 'DNI')
+      INSERT INTO cat_tipo_documento (codigo, descripcion) VALUES ('DNI', 'Documento Nacional de Identidad');
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_documento WHERE codigo = 'RUC')
+      INSERT INTO cat_tipo_documento (codigo, descripcion) VALUES ('RUC', 'Registro Único de Contribuyente');
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_documento WHERE codigo = 'CE')
+      INSERT INTO cat_tipo_documento (codigo, descripcion) VALUES ('CE', 'Carnet de Extranjería');
+
+    IF NOT EXISTS (SELECT 1 FROM cat_sexo WHERE codigo = 'M')
+      INSERT INTO cat_sexo (codigo, descripcion) VALUES ('M', 'Masculino');
+    IF NOT EXISTS (SELECT 1 FROM cat_sexo WHERE codigo = 'F')
+      INSERT INTO cat_sexo (codigo, descripcion) VALUES ('F', 'Femenino');
+
+    IF NOT EXISTS (SELECT 1 FROM cat_estado_civil WHERE codigo = 'SOLTERO')
+      INSERT INTO cat_estado_civil (codigo, descripcion) VALUES ('SOLTERO', 'Soltero/a');
+    IF NOT EXISTS (SELECT 1 FROM cat_estado_civil WHERE codigo = 'CASADO')
+      INSERT INTO cat_estado_civil (codigo, descripcion) VALUES ('CASADO', 'Casado/a');
+    IF NOT EXISTS (SELECT 1 FROM cat_estado_civil WHERE codigo = 'CONVIVIENTE')
+      INSERT INTO cat_estado_civil (codigo, descripcion) VALUES ('CONVIVIENTE', 'Conviviente');
+
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_cuenta_bancaria WHERE codigo = 'AHORROS')
+      INSERT INTO cat_tipo_cuenta_bancaria (codigo, descripcion) VALUES ('AHORROS', 'Cuenta Ahorros');
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_cuenta_bancaria WHERE codigo = 'CORRIENTE')
+      INSERT INTO cat_tipo_cuenta_bancaria (codigo, descripcion) VALUES ('CORRIENTE', 'Cuenta Corriente');
+
+    IF NOT EXISTS (SELECT 1 FROM cat_banco WHERE codigo = 'BCP')
+      INSERT INTO cat_banco (codigo, nombre) VALUES ('BCP', 'Banco de Crédito del Perú');
+    IF NOT EXISTS (SELECT 1 FROM cat_banco WHERE codigo = 'BBVA')
+      INSERT INTO cat_banco (codigo, nombre) VALUES ('BBVA', 'BBVA Banco Continental');
+    IF NOT EXISTS (SELECT 1 FROM cat_banco WHERE codigo = 'INTERBANK')
+      INSERT INTO cat_banco (codigo, nombre) VALUES ('INTERBANK', 'Interbank');
+
+    IF NOT EXISTS (SELECT 1 FROM cat_afp WHERE codigo = 'INTEGRA')
+      INSERT INTO cat_afp (codigo, nombre, tasa_comision) VALUES ('INTEGRA', 'AFP Integra', 0.0150);
+    IF NOT EXISTS (SELECT 1 FROM cat_afp WHERE codigo = 'PRIMA')
+      INSERT INTO cat_afp (codigo, nombre, tasa_comision) VALUES ('PRIMA', 'AFP Prima', 0.0160);
+    IF NOT EXISTS (SELECT 1 FROM cat_afp WHERE codigo = 'ONP')
+      INSERT INTO cat_afp (codigo, nombre, tasa_comision) VALUES ('ONP', 'Oficina de Normalización Previsional', 0.1300);
+
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_contrato WHERE codigo = 'INDETERMINADO')
+      INSERT INTO cat_tipo_contrato (codigo, descripcion, requiere_fin) VALUES ('INDETERMINADO', 'Contrato a Plazo Indeterminado', 0);
+    IF NOT EXISTS (SELECT 1 FROM cat_tipo_contrato WHERE codigo = 'PLAZO_FIJO')
+      INSERT INTO cat_tipo_contrato (codigo, descripcion, requiere_fin) VALUES ('PLAZO_FIJO', 'Contrato a Plazo Fijo', 1);
+  `);
+  console.log('  ✔ Catálogos Maestros rellenados');
+
+  // 7. Turno de prueba (Oficina regular)
+  await pool.request()
+    .input('eid',    sql.Int,      empresaId)
+    .input('codigo', sql.NVarChar, 'TUR-ADM')
+    .input('nombre', sql.NVarChar, 'Horario de Oficina Administrativo')
+    .input('entrada',sql.VarChar,  '08:00')
+    .input('salida', sql.VarChar,  '17:00')
+    .input('tol',    sql.SmallInt, 10)
+    .input('horas',  sql.Decimal,  8.00)
+    .query(`
+      IF NOT EXISTS (SELECT 1 FROM turnos WHERE codigo = @codigo)
+        INSERT INTO turnos (empresa_id, codigo, nombre, hora_entrada, hora_salida, tolerancia_min, horas_diarias, nocturno)
+        VALUES (@eid, @codigo, @nombre, CAST(@entrada AS TIME), CAST(@salida AS TIME), @tol, @horas, 0)
+    `);
+  console.log('  ✔ Turno Administrativo de prueba creado');
+
+  // 8. Rol Admin
   await pool.request()
     .input('codigo',  sql.NVarChar, 'ADMIN_SISTEMA')
     .input('nombre',  sql.NVarChar, 'Administrador del Sistema')
@@ -122,7 +207,7 @@ async function seed() {
     .query('SELECT id FROM roles WHERE codigo = @c');
   const rolId = rolRes.recordset[0].id;
 
-  // 6. Usuario administrador
+  // 9. Usuario administrador
   const hash = await bcrypt.hash('Admin123!', 10);
   await pool.request()
     .input('username', sql.NVarChar, 'admin')

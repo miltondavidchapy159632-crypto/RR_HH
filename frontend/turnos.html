@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SCGRH — Contratos</title>
+  <title>SCGRH — Turnos de Trabajo</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="./css/style.css"/>
@@ -31,12 +31,12 @@
       <div class="sidebar-section">
         <p class="sidebar-section-label">Personas</p>
         <a href="/colaboradores.html" class="nav-item"><i class="fa-solid fa-users"></i> Colaboradores</a>
-        <a href="/contratos.html"     class="nav-item active"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="/contratos.html"     class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
         <a href="#" class="nav-item disabled"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
       </div>
       <div class="sidebar-section">
         <p class="sidebar-section-label">Operaciones</p>
-        <a href="/turnos.html"      class="nav-item"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
+        <a href="/turnos.html"      class="nav-item active"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
         <a href="/marcaciones.html" class="nav-item"><i class="fa-solid fa-clock"></i> Asistencias</a>
         <a href="#" class="nav-item disabled"><i class="fa-solid fa-money-bill-wave"></i> Nómina</a>
       </div>
@@ -56,43 +56,50 @@
   <div class="main-wrapper">
     <header class="topbar">
       <div class="topbar-title">
-        <h1><i class="fa-solid fa-file-contract" style="color:var(--success);margin-right:10px"></i>Contratos</h1>
-        <p>Gestión de relaciones contractuales y condiciones laborales</p>
+        <h1><i class="fa-solid fa-business-time" style="color:var(--accent);margin-right:10px"></i>Turnos y Horarios</h1>
+        <p>Configuración de turnos de trabajo y asignación horaria</p>
       </div>
     </header>
     <main class="page-content">
+      
+      <!-- Sub-navegación simple -->
+      <div style="display: flex; gap: 10px; margin-bottom: 24px;">
+        <a href="/turnos.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-calendar-day"></i> Configurar Turnos</a>
+        <a href="/horarios.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-calendar-days"></i> Horarios Semanales</a>
+      </div>
+
       <div class="page-header">
         <div class="page-header-left">
-          <h2>Contratos Laborales</h2>
-          <p>Genera nuevos contratos y controla su estado</p>
+          <h2>Gestión de Turnos</h2>
+          <p>Define las horas de entrada, salida y tolerancias para el control biométrico</p>
         </div>
         <button class="btn btn-primary" onclick="openCreate()">
-          <i class="fa-solid fa-plus"></i> Generar Contrato
+          <i class="fa-solid fa-plus"></i> Nuevo Turno
         </button>
       </div>
 
       <div class="table-container">
         <div class="table-toolbar">
           <div class="table-toolbar-left">
-            <span class="table-title">Lista de Contratos</span>
+            <span class="table-title">Lista de Turnos</span>
             <div class="search-box">
               <i class="fa-solid fa-magnifying-glass"></i>
-              <input type="text" id="searchInput" placeholder="Buscar por colaborador o código..." oninput="filterTable(this.value)"/>
+              <input type="text" id="searchInput" placeholder="Buscar por código o nombre..." oninput="filterTable(this.value)"/>
             </div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="loadData()"><i class="fa-solid fa-rotate-right"></i></button>
+          <button class="btn btn-secondary btn-sm" onclick="loadData()"><i class="fa-solid fa-rotate-right"></i> Actualizar</button>
         </div>
         <table>
           <thead>
             <tr>
               <th>#</th>
               <th>Código</th>
-              <th>Colaborador</th>
-              <th>Cargo / Puesto</th>
-              <th>Tipo de Contrato</th>
-              <th>Modalidad</th>
-              <th>Salario Base</th>
-              <th>Vigencia</th>
+              <th>Nombre del Turno</th>
+              <th>Hora Entrada</th>
+              <th>Hora Salida</th>
+              <th>Tolerancia (min)</th>
+              <th>Horas Diarias</th>
+              <th>Nocturno</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -108,81 +115,56 @@
 <div class="modal-overlay" id="modalForm">
   <div class="modal">
     <div class="modal-header">
-      <div><h3 id="modalTitle">Nuevo Contrato</h3><p id="modalSubtitle">Define los términos contractuales y puesto laboral</p></div>
+      <div><h3 id="modalTitle">Nuevo Turno</h3><p id="modalSubtitle">Define el horario diario del turno laboral</p></div>
       <button class="btn-close-modal" onclick="closeModal('modalForm')"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <form id="mainForm" onsubmit="submitForm(event)">
       <div class="modal-body">
         <div class="form-grid form-grid-2">
 
+          <div class="form-group">
+            <label>Empresa *</label>
+            <select class="form-control" id="fEmpresa" required><option value="">Seleccionar...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Estado</label>
+            <select class="form-control" id="fActivo">
+              <option value="1">Activo</option>
+              <option value="0">Inactivo</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Código del Turno *</label>
+            <input class="form-control" id="fCodigo" type="text" placeholder="TUR-MAÑANA" required/>
+          </div>
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input class="form-control" id="fNombre" type="text" placeholder="Turno Mañana Completa" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Hora Entrada *</label>
+            <input class="form-control" id="fHoraEntrada" type="time" required/>
+          </div>
+          <div class="form-group">
+            <label>Hora Salida *</label>
+            <input class="form-control" id="fHoraSalida" type="time" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Tolerancia de Entrada (min) *</label>
+            <input class="form-control" id="fTolerancia" type="number" min="0" value="5" required/>
+          </div>
+          <div class="form-group">
+            <label>Horas Diarias a Trabajar *</label>
+            <input class="form-control" id="fHorasDiarias" type="number" step="0.5" min="1" value="8.0" required/>
+          </div>
+
           <div class="form-group span-2">
-            <label>Colaborador *</label>
-            <select class="form-control" id="fColaborador" required><option value="">Cargando...</option></select>
-          </div>
-
-          <div class="form-group">
-            <label>Código de Contrato *</label>
-            <input class="form-control" id="fCodigo" type="text" placeholder="CONT-2026-001" required/>
-          </div>
-          <div class="form-group">
-            <label>Estado Contrato</label>
-            <select class="form-control" id="fEstado">
-              <option value="BORRADOR">BORRADOR</option>
-              <option value="PENDIENTE_FIRMA">PENDIENTE FIRMA</option>
-              <option value="VIGENTE">VIGENTE (Activo)</option>
-              <option value="VENCIDO">VENCIDO</option>
-              <option value="RESCINDIDO">RESCINDIDO</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Puesto Laboral *</label>
-            <select class="form-control" id="fPuesto" required><option value="">Cargando...</option></select>
-          </div>
-          <div class="form-group">
-            <label>Tipo de Contrato *</label>
-            <select class="form-control" id="fTipoContrato" required><option value="">Cargando...</option></select>
-          </div>
-
-          <div class="form-group">
-            <label>Centro de Costo</label>
-            <select class="form-control" id="fCentroCosto"><option value="">Ninguno</option></select>
-          </div>
-          <div class="form-group">
-            <label>Modalidad</label>
-            <select class="form-control" id="fModalidad">
-              <option value="PRESENCIAL">PRESENCIAL</option>
-              <option value="REMOTO">REMOTO</option>
-              <option value="HIBRIDO">HÍBRIDO</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Fecha de Inicio *</label>
-            <input class="form-control" id="fFechaInicio" type="date" required/>
-          </div>
-          <div class="form-group">
-            <label>Fecha Fin (Opcional)</label>
-            <input class="form-control" id="fFechaFin" type="date"/>
-          </div>
-
-          <div class="form-group">
-            <label>Salario Base * (S/.)</label>
-            <input class="form-control" id="fSalario" type="number" step="0.01" min="0" placeholder="1050.00" required/>
-          </div>
-          <div class="form-group">
-            <label>Jornada Diaria (Horas)</label>
-            <input class="form-control" id="fJornada" type="number" step="0.5" value="8.0" min="1"/>
-          </div>
-
-          <div class="form-group">
-            <label class="checkbox-label" style="margin-top: 14px;">
-              <input type="checkbox" id="fAltaTReg"/> Alta en T-Registro
+            <label class="checkbox-label" style="margin-top: 8px;">
+              <input type="checkbox" id="fNocturno"/> Turno Nocturno (Cruza la medianoche)
             </label>
-          </div>
-          <div class="form-group">
-            <label>Número Registro T</label>
-            <input class="form-control" id="fNroRegT" type="text" placeholder="Nro de Constancia"/>
           </div>
 
         </div>
@@ -199,18 +181,18 @@
 <div class="modal-overlay confirm-modal" id="modalConfirm">
   <div class="modal">
     <div class="modal-body" style="padding:32px 24px;text-align:center">
-      <div class="confirm-icon"><i class="fa-solid fa-file-signature"></i></div>
-      <h3 style="margin-bottom:8px">¿Rescindir contrato?</h3>
-      <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:24px">El estado de este contrato pasará a ser 'RESCINDIDO'.</p>
+      <div class="confirm-icon"><i class="fa-solid fa-trash"></i></div>
+      <h3 style="margin-bottom:8px">¿Desactivar turno?</h3>
+      <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:24px">El turno cambiará de estado a Inactivo.</p>
       <div style="display:flex;gap:10px;justify-content:center">
         <button class="btn btn-secondary" onclick="closeModal('modalConfirm')">Cancelar</button>
-        <button class="btn btn-danger" id="btnConfirmDel"><i class="fa-solid fa-ban"></i> Rescindir</button>
+        <button class="btn btn-danger" id="btnConfirmDel"><i class="fa-solid fa-trash"></i> Desactivar</button>
       </div>
     </div>
   </div>
 </div>
 
 <script src="./js/auth.js"></script>
-<script src="./js/contratos.js"></script>
+<script src="./js/turnos.js"></script>
 </body>
 </html>

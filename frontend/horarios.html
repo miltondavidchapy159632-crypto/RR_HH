@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCGRH — Horarios Semanales</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/style.css"/>
+</head>
+<body>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="sidebar-brand-text"><h2>SCGRH</h2><p>Recursos Humanos</p></div>
+    </div>
+    <nav>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Principal</p>
+        <a href="/dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Organización</p>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
+        <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Personas</p>
+        <a href="/colaboradores.html" class="nav-item"><i class="fa-solid fa-users"></i> Colaboradores</a>
+        <a href="/contratos.html"     class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="#" class="nav-item disabled"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Operaciones</p>
+        <a href="/turnos.html"      class="nav-item active"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
+        <a href="/marcaciones.html" class="nav-item"><i class="fa-solid fa-clock"></i> Asistencias</a>
+        <a href="#" class="nav-item disabled"><i class="fa-solid fa-money-bill-wave"></i> Nómina</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUsername">...</div>
+          <div class="user-role" id="sidebarRole">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-calendar-days" style="color:var(--gold);margin-right:10px"></i>Horarios Semanales</h1>
+        <p>Define plantillas de horarios semanales y asígnalos a los colaboradores</p>
+      </div>
+    </header>
+    <main class="page-content">
+      
+      <!-- Sub-navegación simple -->
+      <div style="display: flex; gap: 10px; margin-bottom: 24px;">
+        <a href="/turnos.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-calendar-day"></i> Configurar Turnos</a>
+        <a href="/horarios.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-calendar-days"></i> Horarios Semanales</a>
+      </div>
+
+      <!-- SECCIÓN 1: PLANTILLAS DE HORARIO -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Plantillas de Horarios</h2>
+          <p>Mapea qué turnos de trabajo corresponden a cada día de la semana</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateHorario()">
+          <i class="fa-solid fa-plus"></i> Nueva Plantilla
+        </button>
+      </div>
+
+      <div class="table-container" style="margin-bottom: 40px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre Horario</th>
+              <th>Sucursal</th>
+              <th>Lun</th>
+              <th>Mar</th>
+              <th>Mié</th>
+              <th>Jue</th>
+              <th>Vie</th>
+              <th>Sáb</th>
+              <th>Dom</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaHorariosBody"></tbody>
+        </table>
+      </div>
+
+      <!-- SECCIÓN 2: ASIGNACIÓN A COLABORADORES -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Asignación de Horarios</h2>
+          <p>Vincula un horario semanal activo al contrato de un colaborador</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateAsignacion()">
+          <i class="fa-solid fa-user-clock"></i> Asignar Horario
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Colaborador</th>
+              <th>Contrato</th>
+              <th>Horario Semanal</th>
+              <th>Fecha Inicio</th>
+              <th>Fecha Fin</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaAsignacionesBody"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- MODAL CREAR PLANTILLA HORARIO -->
+<div class="modal-overlay" id="modalHorario">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-header">
+      <div><h3 id="modalTitle">Nuevo Horario Semanal</h3><p id="modalSubtitle">Asigna un turno de trabajo a cada día laboral</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalHorario')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formHorario" onsubmit="submitHorario(event)">
+      <div class="modal-body">
+        <div class="form-grid form-grid-2">
+          
+          <div class="form-group span-2">
+            <label>Nombre de la Plantilla *</label>
+            <input class="form-control" id="hNombre" type="text" placeholder="Ej: Horario de Oficina regular" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Sede / Sucursal *</label>
+            <select class="form-control" id="hSucursal" required><option value="">Seleccionar...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Cargo de Referencia (opcional)</label>
+            <select class="form-control" id="hCargo"><option value="">Todos los cargos</option></select>
+          </div>
+
+          <h4 class="form-group span-2" style="border-bottom: 1px solid var(--border); padding-bottom: 4px; padding-top: 8px; font-size: 0.8rem; color: var(--accent);">
+            Asignación de Turno por Día:
+          </h4>
+
+          <div class="form-group"><label>Lunes</label><select class="form-control f-dia" id="hLun"><option value="">Libre / Descanso</option></select></div>
+          <div class="form-group"><label>Martes</label><select class="form-control f-dia" id="hMar"><option value="">Libre / Descanso</option></select></div>
+          <div class="form-group"><label>Miércoles</label><select class="form-control f-dia" id="hMie"><option value="">Libre / Descanso</option></select></div>
+          <div class="form-group"><label>Jueves</label><select class="form-control f-dia" id="hJue"><option value="">Libre / Descanso</option></select></div>
+          <div class="form-group"><label>Viernes</label><select class="form-control f-dia" id="hVie"><option value="">Libre / Descanso</option></select></div>
+          <div class="form-group"><label>Sábado</label><select class="form-control f-dia" id="hSab"><option value="">Libre / Descanso</option></select></div>
+          <div class="form-group"><label>Domingo</label><select class="form-control f-dia" id="hDom"><option value="">Libre / Descanso</option></select></div>
+          
+          <div class="form-group">
+            <label>Estado</label>
+            <select class="form-control" id="hActivo"><option value="1">Activo</option><option value="0">Inactivo</option></select>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalHorario')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitHorario"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL ASIGNACIÓN -->
+<div class="modal-overlay" id="modalAsignacion">
+  <div class="modal">
+    <div class="modal-header">
+      <div><h3>Asignar Horario a Colaborador</h3><p>Asocia una plantilla a un contrato laboral vigente</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalAsignacion')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formAsignacion" onsubmit="submitAsignacion(event)">
+      <div class="modal-body">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label>Contrato de Colaborador *</label>
+            <select class="form-control" id="aContrato" required><option value="">Seleccionar...</option></select>
+          </div>
+
+          <div class="form-group">
+            <label>Plantilla Horario Semanal *</label>
+            <select class="form-control" id="aHorario" required><option value="">Seleccionar...</option></select>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de Inicio *</label>
+            <input class="form-control" id="aFechaInicio" type="date" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha Fin (Opcional)</label>
+            <input class="form-control" id="aFechaFin" type="date"/>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalAsignacion')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitAsignacion"><i class="fa-solid fa-circle-check"></i> Asignar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CONFIRM DELETES -->
+<div class="modal-overlay confirm-modal" id="modalConfirm">
+  <div class="modal">
+    <div class="modal-body" style="padding:32px 24px;text-align:center">
+      <div class="confirm-icon"><i class="fa-solid fa-trash"></i></div>
+      <h3 id="confirmTitle">¿Eliminar asignación?</h3>
+      <p id="confirmDesc" style="color:var(--text-muted);font-size:.83rem;margin-bottom:24px">Esta acción no se puede deshacer.</p>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn btn-secondary" onclick="closeModal('modalConfirm')">Cancelar</button>
+        <button class="btn btn-danger" id="btnConfirmDel"><i class="fa-solid fa-trash"></i> Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./js/auth.js"></script>
+<script src="./js/horarios.js"></script>
+</body>
+</html>

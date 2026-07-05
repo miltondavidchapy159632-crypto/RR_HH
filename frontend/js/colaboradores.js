@@ -96,52 +96,61 @@ function resetForm() {
 }
 
 async function openCreate() {
-  resetForm();
-  await loadCatalogs();
-  openModal('modalForm');
+  try {
+    resetForm();
+    await loadCatalogs();
+    openModal('modalForm');
+  } catch (err) {
+    console.error('Error al iniciar registro de colaborador:', err);
+    showToast('Error de catálogos: ' + err.message, 'error');
+  }
 }
 
 async function editItem(id) {
-  const res = await apiFetch(`/personas/${id}`);
-  if (!res || !res.ok) { showToast('Error al cargar datos', 'error'); return; }
-  const p = res.data;
-  editingId = id;
-  await loadCatalogs();
+  try {
+    editingId = id;
+    await loadCatalogs();
+    const res = await apiFetch(`/personas/${id}`);
+    if (!res || !res.ok) { showToast('Error al cargar datos', 'error'); return; }
+    const p = res.data;
 
-  document.getElementById('fTipoDoc').value        = p.tipo_doc_id;
-  document.getElementById('fNroDoc').value         = p.nro_documento || '';
-  document.getElementById('fNombres').value        = p.nombres || '';
-  document.getElementById('fApPaterno').value      = p.apellido_paterno || '';
-  document.getElementById('fApMaterno').value      = p.apellido_materno || '';
-  
-  if (p.fecha_nacimiento) {
-    document.getElementById('fFechaNac').value = p.fecha_nacimiento.split('T')[0];
-  } else {
-    document.getElementById('fFechaNac').value = '';
+    document.getElementById('fTipoDoc').value        = p.tipo_doc_id;
+    document.getElementById('fNroDoc').value         = p.nro_documento || '';
+    document.getElementById('fNombres').value        = p.nombres || '';
+    document.getElementById('fApPaterno').value      = p.apellido_paterno || '';
+    document.getElementById('fApMaterno').value      = p.apellido_materno || '';
+    
+    if (p.fecha_nacimiento) {
+      document.getElementById('fFechaNac').value = p.fecha_nacimiento.split('T')[0];
+    } else {
+      document.getElementById('fFechaNac').value = '';
+    }
+
+    document.getElementById('fSexo').value           = p.sexo_id || '';
+    document.getElementById('fEstadoCivil').value    = p.estado_civil_id || '';
+    document.getElementById('fNacionalidad').value   = p.nacionalidad || 'Peruana';
+    document.getElementById('fEstado').value         = p.estado || 'CANDIDATO';
+    
+    document.getElementById('fEmailPersonal').value  = p.email_personal || '';
+    document.getElementById('fEmailCorp').value      = p.email_corporativo || '';
+    document.getElementById('fCelular').value        = p.telefono_celular || '';
+    document.getElementById('fFijo').value           = p.telefono_fijo || '';
+    document.getElementById('fDireccion').value      = p.direccion || '';
+    
+    document.getElementById('fBanco').value          = p.banco_id || '';
+    document.getElementById('fTipoCuenta').value     = p.tipo_cuenta_id || '';
+    document.getElementById('fNroCuenta').value      = p.nro_cuenta || '';
+    document.getElementById('fCCI').value            = p.cuenta_cci || '';
+    document.getElementById('fAFP').value            = p.afp_id || '';
+    document.getElementById('fCUSPP').value          = p.nro_cuspp || '';
+
+    document.getElementById('modalTitle').textContent    = 'Editar Ficha de Colaborador';
+    document.getElementById('modalSubtitle').textContent = `Ficha ID: ${id}`;
+    document.getElementById('btnSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
+    openModal('modalForm');
+  } catch (err) {
+    showToast('Error al cargar datos de edición: ' + err.message, 'error');
   }
-
-  document.getElementById('fSexo').value           = p.sexo_id || '';
-  document.getElementById('fEstadoCivil').value    = p.estado_civil_id || '';
-  document.getElementById('fNacionalidad').value   = p.nacionalidad || 'Peruana';
-  document.getElementById('fEstado').value         = p.estado || 'CANDIDATO';
-  
-  document.getElementById('fEmailPersonal').value  = p.email_personal || '';
-  document.getElementById('fEmailCorp').value      = p.email_corporativo || '';
-  document.getElementById('fCelular').value        = p.telefono_celular || '';
-  document.getElementById('fFijo').value           = p.telefono_fijo || '';
-  document.getElementById('fDireccion').value      = p.direccion || '';
-  
-  document.getElementById('fBanco').value          = p.banco_id || '';
-  document.getElementById('fTipoCuenta').value     = p.tipo_cuenta_id || '';
-  document.getElementById('fNroCuenta').value      = p.nro_cuenta || '';
-  document.getElementById('fCCI').value            = p.cuenta_cci || '';
-  document.getElementById('fAFP').value            = p.afp_id || '';
-  document.getElementById('fCUSPP').value          = p.nro_cuspp || '';
-
-  document.getElementById('modalTitle').textContent    = 'Editar Ficha de Colaborador';
-  document.getElementById('modalSubtitle').textContent = `Ficha ID: ${id}`;
-  document.getElementById('btnSubmit').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
-  openModal('modalForm');
 }
 
 async function submitForm(e) {

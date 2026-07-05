@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Sistema Corporativo de Gestión de Recursos Humanos - Login"/>
+  <title>SCGRH — Iniciar Sesión</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --bg:        #040C18;
+      --card:      #0C1D35;
+      --border:    #142035;
+      --accent:    #2D7EF8;
+      --gold:      #F0A500;
+      --text:      #EDF2FF;
+      --muted:     #8BA3C7;
+      --danger:    #F04E5E;
+      --input-bg:  #071324;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Animated Background ── */
+    .bg-animated {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      animation: float 8s ease-in-out infinite;
+    }
+    .bg-orb:nth-child(1) { width: 500px; height: 500px; background: #2D7EF8; top: -150px; left: -150px; animation-delay: 0s; }
+    .bg-orb:nth-child(2) { width: 400px; height: 400px; background: #7C3AED; bottom: -100px; right: 200px; animation-delay: -3s; }
+    .bg-orb:nth-child(3) { width: 300px; height: 300px; background: #F0A500; top: 40%; right: -100px; animation-delay: -5s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-30px) scale(1.05); }
+    }
+
+    /* ── Grid Layout ── */
+    .login-container {
+      display: flex;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 70px;
+      background: linear-gradient(135deg, rgba(13,26,53,0.9) 0%, rgba(4,12,24,0.9) 100%);
+      border-right: 1px solid rgba(255,255,255,0.05);
+      position: relative;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 60px;
+    }
+    .logo-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--accent), #7C3AED);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 30px rgba(45,126,248,0.4);
+    }
+    .logo-text h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #fff, #8BA3C7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .logo-text p {
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+    .hero-title .accent { color: var(--accent); }
+    .hero-title .gold   { color: var(--gold); }
+
+    .hero-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      max-width: 420px;
+      margin-bottom: 50px;
+    }
+
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .feature-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .feature-icon.blue   { background: rgba(45,126,248,0.15); color: var(--accent); }
+    .feature-icon.gold   { background: rgba(240,165,0,0.15);  color: var(--gold); }
+    .feature-icon.green  { background: rgba(0,200,150,0.15);  color: #00C896; }
+    .feature-icon.purple { background: rgba(124,58,237,0.15); color: #A78BFA; }
+
+    .feature-text h4 { font-size: 0.82rem; font-weight: 600; }
+    .feature-text p  { font-size: 0.72rem; color: var(--muted); }
+
+    .left-footer {
+      margin-top: 60px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+    .left-footer img { height: 20px; opacity: 0.6; }
+
+    /* Decorative grid */
+    .grid-pattern {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(45,126,248,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45,126,248,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      flex: 0 0 440px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 50px;
+      background: rgba(7,19,36,0.95);
+    }
+
+    .login-card { width: 100%; }
+
+    .login-header { margin-bottom: 36px; }
+    .login-header h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .login-header p { color: var(--muted); font-size: 0.82rem; }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 18px; }
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap i {
+      position: absolute;
+      left: 13px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+    .input-wrap input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 12px 42px;
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .input-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,126,248,0.2); }
+    .input-wrap input::placeholder { color: #3D5270; }
+    .input-wrap input.error { border-color: var(--danger); }
+
+    .toggle-pass {
+      position: absolute;
+      right: 13px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .toggle-pass:hover { color: var(--text); }
+
+    .form-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 26px;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .checkbox-label input[type="checkbox"] { accent-color: var(--accent); }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--accent), #1A5FCC);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(45,126,248,0.35);
+      letter-spacing: 0.02em;
+    }
+    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(45,126,248,0.5); }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: 0.6; pointer-events: none; }
+
+    .error-msg {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: rgba(240,78,94,0.1);
+      border: 1px solid rgba(240,78,94,0.3);
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 0.78rem;
+      color: var(--danger);
+      margin-top: 16px;
+    }
+    .error-msg.show { display: flex; }
+    .error-msg i { flex-shrink: 0; }
+
+    .login-footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .login-footer strong { color: var(--text); font-weight: 600; }
+
+    /* Loader spinner */
+    .spin {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .left-panel { display: none; }
+      .right-panel { flex: 1; padding: 30px 24px; }
+      body { overflow: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Animated background -->
+<div class="bg-animated">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+</div>
+
+<div class="login-container">
+  <!-- ── LEFT PANEL ── -->
+  <div class="left-panel">
+    <div class="grid-pattern"></div>
+
+    <div class="logo-group">
+      <div class="logo-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="logo-text">
+        <h1>SCGRH</h1>
+        <p>Sistema Corporativo de RRHH</p>
+      </div>
+    </div>
+
+    <h2 class="hero-title">
+      Gestión de<br>
+      <span class="accent">Recursos</span><br>
+      <span class="gold">Humanos</span>
+    </h2>
+
+    <p class="hero-desc">
+      Plataforma integral para la gestión del capital humano. Controla empleados, contratos, asistencias y nóminas desde un solo lugar.
+    </p>
+
+    <div class="features-list">
+      <div class="feature-item">
+        <div class="feature-icon blue"><i class="fa-solid fa-file-contract"></i></div>
+        <div class="feature-text">
+          <h4>Contratos y Expedientes</h4>
+          <p>Gestión completa del ciclo laboral</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon gold"><i class="fa-solid fa-clock"></i></div>
+        <div class="feature-text">
+          <h4>Control de Asistencia</h4>
+          <p>Marcaciones, turnos y horas extras</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon green"><i class="fa-solid fa-money-bill-wave"></i></div>
+        <div class="feature-text">
+          <h4>Nómina y Beneficios</h4>
+          <p>Planillas, boletas y liquidaciones</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon purple"><i class="fa-solid fa-chart-line"></i></div>
+        <div class="feature-text">
+          <h4>Reclutamiento</h4>
+          <p>Vacantes, postulaciones y contratos</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="left-footer">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>Universidad Nacional de Piura — Ingeniería Informática · 2026</span>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+    <div class="login-card">
+      <div class="login-header">
+        <h2>Bienvenido 👋</h2>
+        <p>Ingresa tus credenciales para continuar</p>
+      </div>
+
+      <form id="loginForm" autocomplete="off">
+        <div class="form-group">
+          <label for="username">Usuario</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="username" placeholder="Ingresa tu usuario" autocomplete="username" required/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" required/>
+            <i class="fa-solid fa-eye toggle-pass" id="togglePass"></i>
+          </div>
+        </div>
+
+        <div class="form-meta">
+          <label class="checkbox-label">
+            <input type="checkbox" id="remember"/> Recordarme
+          </label>
+        </div>
+
+        <button type="submit" class="btn-login" id="btnLogin">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Iniciar Sesión</span>
+        </button>
+
+        <div class="error-msg" id="errorMsg">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span id="errorText">Credenciales incorrectas</span>
+        </div>
+      </form>
+
+      <div class="login-footer">
+        <p>SCGRH v1.0 · <strong>UNP — Ing. Informática 2026</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./js/login.js"></script>
+</body>
+</html>

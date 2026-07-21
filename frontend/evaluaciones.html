@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCGRH — Evaluaciones de Desempeño</title>
+  <meta name="description" content="Ciclo de evaluación de desempeño del personal — Restaurante del Futuro"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/style.css"/>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="sidebar-brand-text"><h2>SCGRH</h2><p>Restaurante del Futuro</p></div>
+    </div>
+    <nav>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Principal</p>
+        <a href="/dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Organización</p>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
+        <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Personas</p>
+        <a href="/colaboradores.html"  class="nav-item"><i class="fa-solid fa-users"></i> Colaboradores</a>
+        <a href="/contratos.html"      class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="/reclutamiento.html"  class="nav-item"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Operaciones</p>
+        <a href="/turnos.html"      class="nav-item"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
+        <a href="/marcaciones.html" class="nav-item"><i class="fa-solid fa-clock"></i> Asistencias</a>
+        <a href="/vacaciones.html"  class="nav-item"><i class="fa-solid fa-umbrella-beach"></i> Vacaciones</a>
+        <a href="/licencias.html"   class="nav-item"><i class="fa-solid fa-notes-medical"></i> Licencias</a>
+        <a href="/planillas.html"   class="nav-item"><i class="fa-solid fa-money-check-dollar"></i> Planillas</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Talento</p>
+        <a href="/evaluaciones.html"   class="nav-item active"><i class="fa-solid fa-star-half-stroke"></i> Evaluaciones</a>
+        <a href="/capacitaciones.html" class="nav-item"><i class="fa-solid fa-graduation-cap"></i> Capacitaciones</a>
+        <a href="/certificaciones.html"class="nav-item"><i class="fa-solid fa-certificate"></i> Certificaciones</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Gestión</p>
+        <a href="/desvinculacion.html" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i> Desvinculación</a>
+        <a href="/zonas.html"          class="nav-item"><i class="fa-solid fa-map-location-dot"></i> Zonas</a>
+        <a href="/auditoria.html"      class="nav-item"><i class="fa-solid fa-scroll"></i> Auditoría</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUsername">Cargando...</div>
+          <div class="user-role" id="sidebarRole">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Cerrar sesión">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-star-half-stroke" style="color:var(--gold);margin-right:10px"></i>Evaluaciones de Desempeño</h1>
+        <p>Ciclo de evaluación periódica del personal por criterios y competencias</p>
+      </div>
+      <button class="btn btn-primary" onclick="openNuevaEval()">
+        <i class="fa-solid fa-plus"></i> Nueva Evaluación
+      </button>
+    </header>
+
+    <main class="page-content">
+
+      <!-- STATS -->
+      <div class="stats-grid" id="statsGrid" style="grid-template-columns:repeat(5,1fr)">
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="card" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:16px 20px;margin-bottom:0">
+        <div class="search-box" style="flex:1;min-width:200px">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchInput" placeholder="Buscar por nombre o cargo..." oninput="filterEvals(this.value)"/>
+        </div>
+        <select id="filtroEstado" class="form-control" style="width:160px;font-size:.82rem" onchange="filterEvals(document.getElementById('searchInput').value)">
+          <option value="">Todos los estados</option>
+          <option value="BORRADOR">Borrador</option>
+          <option value="EN_PROCESO">En Proceso</option>
+          <option value="COMPLETADA">Completada</option>
+          <option value="APROBADA">Aprobada</option>
+        </select>
+        <select id="filtroPeriodo" class="form-control" style="width:130px;font-size:.82rem" onchange="filterEvals(document.getElementById('searchInput').value)">
+          <option value="">Todos los períodos</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" onclick="loadEvals()">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+      </div>
+
+      <!-- TABLA -->
+      <div class="table-container" style="margin-top:14px">
+        <table>
+          <thead>
+            <tr>
+              <th>Colaborador</th>
+              <th>Cargo / Sede</th>
+              <th>Período</th>
+              <th>Puntaje</th>
+              <th>Categoría</th>
+              <th>Criterios</th>
+              <th>Planes</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaBody"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: Nueva Evaluación (paso 1 — datos generales)
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalNuevaEval">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <div>
+        <h3>Nueva Evaluación de Desempeño</h3>
+        <p>Selecciona el colaborador y el período a evaluar</p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalNuevaEval')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formNuevaEval" onsubmit="submitNuevaEval(event)">
+      <div class="modal-body">
+        <div class="form-grid form-grid-2">
+          <div class="form-group span-2">
+            <label>Colaborador (Contrato Vigente) *</label>
+            <select class="form-control" id="fEColaborador" required>
+              <option value="">Cargando colaboradores...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Período de evaluación *</label>
+            <input class="form-control" id="fEPeriodo" type="text"
+                   placeholder="Ej: 2026-S1 / Q1-2026 / ENE-2026" required
+                   title="Formato libre: semestre, trimestre o mes"/>
+          </div>
+          <div class="form-group">
+            <label>Fecha de evaluación *</label>
+            <input class="form-control" id="fEFecha" type="date" required/>
+          </div>
+          <div class="form-group span-2">
+            <label>Fortalezas observadas</label>
+            <textarea class="form-control" id="fEFortalezas" rows="2"
+                      placeholder="Aspectos destacados del colaborador en este período..."></textarea>
+          </div>
+          <div class="form-group span-2">
+            <label>Áreas de mejora</label>
+            <textarea class="form-control" id="fEMejoras" rows="2"
+                      placeholder="Competencias o comportamientos que necesitan desarrollo..."></textarea>
+          </div>
+        </div>
+
+        <!-- Criterios de evaluación -->
+        <div style="margin-top:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h4 style="font-size:.88rem;font-weight:700;color:var(--accent)">
+              <i class="fa-solid fa-list-check"></i> Criterios de Evaluación
+            </h4>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addCriterio()">
+              <i class="fa-solid fa-plus"></i> Agregar criterio
+            </button>
+          </div>
+          <div id="criteriosList"></div>
+          <div id="puntajeSummary" style="display:none;margin-top:14px;background:#0d1117;border-radius:10px;padding:14px;border:1px solid #30363d;text-align:center">
+            <span style="color:#8b949e;font-size:.82rem">Puntaje preliminar: </span>
+            <span id="puntajePrelim" style="font-size:1.3rem;font-weight:800;color:var(--gold)">—</span>
+            <span style="color:#8b949e;font-size:.82rem"> / 100 · </span>
+            <span id="categoriaPrelim" style="font-weight:700"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalNuevaEval')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitEval">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar Evaluación
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: Ver detalle evaluación + planes de desarrollo
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalDetalle">
+  <div class="modal" style="max-width:860px">
+    <div class="modal-header">
+      <div>
+        <h3 id="detalleTitulo">Detalle de Evaluación</h3>
+        <p id="detalleSubtitulo">Criterios y planes de desarrollo</p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalDetalle')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="detalleBody">
+      <div style="text-align:center;padding:40px"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--accent)"></i></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: Nuevo Plan de Desarrollo
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalPlan">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div><h3>Nuevo Plan de Desarrollo</h3><p id="subPlan">Colaborador seleccionado</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalPlan')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formPlan" onsubmit="submitPlan(event)">
+      <div class="modal-body">
+        <div class="form-grid form-grid-2">
+          <div class="form-group span-2">
+            <label>Objetivo del plan *</label>
+            <input class="form-control" id="fPObjetivo" type="text"
+                   placeholder="Ej: Obtener certificación HACCP antes de diciembre" required/>
+          </div>
+          <div class="form-group span-2">
+            <label>Acciones concretas</label>
+            <textarea class="form-control" id="fPAcciones" rows="3"
+                      placeholder="Pasos específicos para lograr el objetivo..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Fecha inicio *</label>
+            <input class="form-control" id="fPInicio" type="date" required/>
+          </div>
+          <div class="form-group">
+            <label>Fecha meta</label>
+            <input class="form-control" id="fPMeta" type="date"/>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalPlan')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-rocket"></i> Crear Plan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+/* ── Criterio row ───────────────────────────────────────────── */
+.criterio-row {
+  display: grid;
+  grid-template-columns: 1fr 90px 90px 1fr auto;
+  gap: 8px; align-items: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 8px; transition: var(--transition);
+}
+.criterio-row:hover { border-color: var(--accent); }
+.criterio-row input, .criterio-row select { font-size: .82rem; }
+.criterio-del {
+  width: 30px; height: 30px; border-radius: 6px;
+  background: transparent; border: 1px solid #ff4d4f44;
+  color: #ff4d4f; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; transition: var(--transition);
+}
+.criterio-del:hover { background: #ff4d4f22; }
+
+/* ── Categoria badge ────────────────────────────────────────── */
+.cat-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 12px; border-radius: 20px; font-size: .72rem; font-weight: 700;
+}
+.cat-EXCELENTE  { background: rgba(0,200,150,.15);  color: #00c896; }
+.cat-MUY_BUENO  { background: rgba(45,126,248,.15); color: var(--accent); }
+.cat-BUENO      { background: rgba(167,139,250,.15);color: #a78bfa; }
+.cat-REGULAR    { background: rgba(240,165,0,.15);  color: var(--gold); }
+.cat-DEFICIENTE { background: rgba(255,77,79,.15);  color: #ff4d4f; }
+
+/* ── Score ring ────────────────────────────────────────────── */
+.score-ring {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 52px; height: 52px; border-radius: 50%;
+  font-size: 1rem; font-weight: 800; position: relative;
+}
+
+/* ── Plan card ─────────────────────────────────────────────── */
+.plan-card {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px; margin-bottom: 10px;
+  border-left: 3px solid var(--accent);
+}
+.plan-card.CUMPLIDO  { border-left-color: var(--success); }
+.plan-card.CANCELADO { border-left-color: #ff4d4f; }
+.plan-card.EN_CURSO  { border-left-color: var(--gold); }
+.plan-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.plan-card-obj  { font-size: .87rem; font-weight: 600; color: var(--text-primary); }
+.plan-card-acc  { font-size: .78rem; color: var(--text-muted); margin-top: 5px; }
+.plan-card-meta { font-size: .72rem; color: var(--text-muted); margin-top: 6px; }
+
+/* ── Detalle grid ──────────────────────────────────────────── */
+.detail-header {
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 20px; align-items: start; margin-bottom: 24px;
+}
+.detail-name { font-size: 1.1rem; font-weight: 700; }
+.detail-meta { font-size: .82rem; color: var(--text-muted); margin-top: 4px; }
+.detail-criterios-table th,
+.detail-criterios-table td { padding: 10px 12px; font-size: .83rem; }
+.criterio-bar-wrap { width: 100%; background: var(--bg-surface); border-radius: 20px; height: 6px; }
+.criterio-bar { height: 6px; border-radius: 20px; background: var(--accent); transition: width .4s; }
+</style>
+
+<script src="./js/auth.js"></script>
+<script src="./js/evaluaciones.js"></script>
+</body>
+</html>

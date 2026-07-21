@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCGRH — Zonas y Asignaciones</title>
+  <meta name="description" content="Control de zonas físicas, aforo y asignación de personal por turnos — Restaurante del Futuro"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/style.css"/>
+  <style>
+    .zone-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .zone-card:hover { border-color: var(--accent); }
+    .zone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .zone-type {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      background: rgba(45,126,248,.15);
+      color: #2D7EF8;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+    .zone-type.COCINA { background:rgba(240,165,0,.15); color:var(--gold); }
+    .zone-type.TERRAZA { background:rgba(0,200,150,.15); color:var(--success); }
+    .zone-type.SALON_VIP { background:rgba(167,139,250,.15); color:#a78bfa; }
+    
+    .zone-stats {
+      display: flex;
+      gap: 12px;
+      background: var(--bg-body);
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: auto;
+    }
+    .z-stat {
+      flex: 1;
+      text-align: center;
+    }
+    .z-stat-val { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); }
+    .z-stat-lbl { font-size: .65rem; color: var(--text-muted); text-transform: uppercase; }
+
+    /* Asignaciones */
+    .asig-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .asig-row:last-child { border-bottom: none; }
+    .asig-time {
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 100px;
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="sidebar-brand-text"><h2>SCGRH</h2><p>Restaurante del Futuro</p></div>
+    </div>
+    <nav>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Principal</p>
+        <a href="/dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Organización</p>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
+        <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Personas</p>
+        <a href="/colaboradores.html"  class="nav-item"><i class="fa-solid fa-users"></i> Colaboradores</a>
+        <a href="/contratos.html"      class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="/reclutamiento.html"  class="nav-item"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Operaciones</p>
+        <a href="/turnos.html"      class="nav-item"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
+        <a href="/marcaciones.html" class="nav-item"><i class="fa-solid fa-clock"></i> Asistencias</a>
+        <a href="/vacaciones.html"  class="nav-item"><i class="fa-solid fa-umbrella-beach"></i> Vacaciones</a>
+        <a href="/licencias.html"   class="nav-item"><i class="fa-solid fa-notes-medical"></i> Licencias</a>
+        <a href="/planillas.html"   class="nav-item"><i class="fa-solid fa-money-check-dollar"></i> Planillas</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Talento</p>
+        <a href="/evaluaciones.html"   class="nav-item"><i class="fa-solid fa-star-half-stroke"></i> Evaluaciones</a>
+        <a href="/capacitaciones.html" class="nav-item"><i class="fa-solid fa-graduation-cap"></i> Capacitaciones</a>
+        <a href="/certificaciones.html"class="nav-item"><i class="fa-solid fa-certificate"></i> Certificaciones</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Gestión</p>
+        <a href="/desvinculacion.html" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i> Desvinculación</a>
+        <a href="/zonas.html"          class="nav-item active"><i class="fa-solid fa-map-location-dot"></i> Zonas</a>
+        <a href="/auditoria.html"      class="nav-item"><i class="fa-solid fa-scroll"></i> Auditoría</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUsername">Cargando...</div>
+          <div class="user-role" id="sidebarRole">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Cerrar sesión">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-map-location-dot" style="color:var(--accent);margin-right:10px"></i>Zonas del Restaurante</h1>
+        <p>Control de espacios físicos, aforo y asignación de personal</p>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-secondary" onclick="openZonasCat()"><i class="fa-solid fa-building"></i> Gestionar Zonas</button>
+        <button class="btn btn-primary" onclick="openNuevaAsig()"><i class="fa-solid fa-user-plus"></i> Asignar Personal</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <div class="card" style="padding:16px 20px;display:flex;gap:16px;align-items:center;margin-bottom:20px">
+        <div style="flex:1">
+          <h3 style="margin:0;font-size:1.1rem">Personal Asignado por Fecha</h3>
+          <p style="margin:0;font-size:.8rem;color:var(--text-muted)">Visualiza quién está a cargo de cada zona del restaurante.</p>
+        </div>
+        <div>
+          <input type="date" id="filtroFecha" class="form-control" style="width:200px" onchange="loadAsignaciones()"/>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadAsignaciones()"><i class="fa-solid fa-rotate-right"></i></button>
+      </div>
+
+      <div id="asignacionesContainer">
+        <!-- Generado dinámicamente -->
+        <div style="text-align:center;padding:40px"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: ASIGNAR PERSONAL A ZONA
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalNuevaAsig">
+  <div class="modal" style="max-width:550px">
+    <div class="modal-header">
+      <div>
+        <h3>Asignar a Zona</h3>
+        <p>Distribuye al personal en los diferentes espacios del restaurante</p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalNuevaAsig')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formNuevaAsig" onsubmit="submitNuevaAsig(event)">
+      <div class="modal-body">
+        <div class="form-grid form-grid-2">
+          <div class="form-group span-2">
+            <label>Zona *</label>
+            <select class="form-control" id="faZona" required></select>
+          </div>
+          <div class="form-group span-2">
+            <label>Colaborador *</label>
+            <select class="form-control" id="faColaborador" required></select>
+          </div>
+          <div class="form-group span-2">
+            <label>Rol Específico en la Zona (Opcional)</label>
+            <input type="text" class="form-control" id="faRol" placeholder="Ej: Capitán de Mesa, Hostess, Cocinero Parrilla..."/>
+          </div>
+          <div class="form-group span-2">
+            <label>Fecha de Asignación *</label>
+            <input type="date" class="form-control" id="faFecha" required/>
+          </div>
+          
+          <div class="form-group span-2">
+            <label>Turno *</label>
+            <select class="form-control" id="faTurno" required onchange="setHorasFromTurno()">
+              <option value="">— Seleccionar Turno —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Hora Inicio</label>
+            <input type="time" class="form-control" id="faHI"/>
+          </div>
+          <div class="form-group">
+            <label>Hora Fin</label>
+            <input type="time" class="form-control" id="faHF"/>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalNuevaAsig')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Guardar Asignación</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: GESTIÓN DE ZONAS (CRUD)
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalZonasCat">
+  <div class="modal" style="max-width:900px;max-height:90vh;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <div>
+        <h3>Gestión de Zonas</h3>
+        <p>Configura los espacios físicos del restaurante y su aforo</p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalZonasCat')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" style="overflow-y:auto;flex:1;padding:0;background:var(--bg-body)">
+      
+      <div style="padding:16px;display:flex;justify-content:flex-end">
+        <button class="btn btn-secondary btn-sm" onclick="showFormZona()"><i class="fa-solid fa-plus"></i> Nueva Zona</button>
+      </div>
+      
+      <!-- FORM NUEVA ZONA -->
+      <div id="divFormZona" style="display:none;padding:16px;background:var(--bg-surface);border-bottom:1px solid var(--border);border-top:1px solid var(--border)">
+        <h4 style="margin:0 0 10px;font-size:.9rem;color:var(--accent)">Registrar Zona</h4>
+        <div class="form-grid form-grid-3">
+          <div class="form-group"><label>Sucursal *</label><select id="fzSuc" class="form-control"></select></div>
+          <div class="form-group"><label>Código *</label><input type="text" id="fzCod" class="form-control" placeholder="Ej: SAL-01"/></div>
+          <div class="form-group"><label>Nombre *</label><input type="text" id="fzNom" class="form-control" placeholder="Salón Principal"/></div>
+          <div class="form-group"><label>Tipo *</label>
+            <select id="fzTipo" class="form-control">
+              <option value="SALON">Salón</option>
+              <option value="SALON_VIP">Salón VIP</option>
+              <option value="TERRAZA">Terraza</option>
+              <option value="BAR">Bar / Lounge</option>
+              <option value="COCINA">Cocina Principal</option>
+              <option value="COCINA_MOLECULAR">Cocina Molecular / Especial</option>
+              <option value="BODEGA">Bodega / Cava</option>
+              <option value="ENTRADA">Recepción / Hostess</option>
+              <option value="PRIVADO">Salón Privado</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Aforo Máx *</label><input type="number" id="fzAforo" class="form-control" value="20"/></div>
+          <div class="form-group"><label>Activo</label><select id="fzActivo" class="form-control"><option value="1">Sí</option><option value="0">No</option></select></div>
+        </div>
+        <div style="text-align:right;margin-top:10px">
+          <button class="btn btn-secondary btn-sm" onclick="hideFormZona()">Cancelar</button>
+          <button class="btn btn-primary btn-sm" onclick="saveZona()">Guardar</button>
+        </div>
+      </div>
+
+      <div style="padding:16px" id="gridZonasCat">
+        <!-- Zonas generadas aquí -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./js/auth.js"></script>
+<script src="./js/zonas.js"></script>
+</body>
+</html>

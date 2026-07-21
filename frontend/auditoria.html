@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCGRH — Auditoría y Reportes</title>
+  <meta name="description" content="Auditoría de zonas y descarga de reportes en Excel/PDF — Restaurante del Futuro"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/style.css"/>
+  <style>
+    .audit-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    @media(max-width: 992px) { .audit-grid { grid-template-columns: 1fr; } }
+    
+    .rep-card {
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; text-align: center;
+      transition: var(--transition);
+    }
+    .rep-card:hover { border-color: var(--success); transform: translateY(-3px); }
+    .rep-icon { font-size: 3rem; color: var(--success); margin-bottom: 15px; }
+
+    .audit-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px; border-bottom: 1px solid var(--border);
+    }
+    .audit-item:last-child { border-bottom: none; }
+    .audit-ptje {
+      font-size: 1.5rem; font-weight: 800;
+      width: 60px; text-align: right;
+    }
+    .ptje-high { color: var(--success); }
+    .ptje-med { color: var(--gold); }
+    .ptje-low { color: var(--danger); }
+
+    /* Checklist modal */
+    .chk-row {
+      display: flex; align-items: center; gap: 15px;
+      background: var(--bg-body); padding: 12px; border-radius: 8px; margin-bottom: 10px;
+    }
+    .chk-row input[type="checkbox"] { transform: scale(1.3); cursor: pointer; }
+    .chk-row input[type="text"] { flex: 1; border: none; background: transparent; color: var(--text-primary); outline: none; }
+    .chk-row input[type="text"]:focus { border-bottom: 1px solid var(--accent); }
+  </style>
+</head>
+<body>
+<div class="layout">
+  
+  <!-- SIDEBAR (Igual a los demás) -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="sidebar-brand-text"><h2>SCGRH</h2><p>Restaurante del Futuro</p></div>
+    </div>
+    <nav>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Principal</p>
+        <a href="/dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Organización</p>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
+        <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Personas</p>
+        <a href="/colaboradores.html"  class="nav-item"><i class="fa-solid fa-users"></i> Colaboradores</a>
+        <a href="/contratos.html"      class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="/reclutamiento.html"  class="nav-item"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Operaciones</p>
+        <a href="/turnos.html"      class="nav-item"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
+        <a href="/marcaciones.html" class="nav-item"><i class="fa-solid fa-clock"></i> Asistencias</a>
+        <a href="/vacaciones.html"  class="nav-item"><i class="fa-solid fa-umbrella-beach"></i> Vacaciones</a>
+        <a href="/licencias.html"   class="nav-item"><i class="fa-solid fa-notes-medical"></i> Licencias</a>
+        <a href="/planillas.html"   class="nav-item"><i class="fa-solid fa-money-check-dollar"></i> Planillas</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Talento</p>
+        <a href="/evaluaciones.html"   class="nav-item"><i class="fa-solid fa-star-half-stroke"></i> Evaluaciones</a>
+        <a href="/capacitaciones.html" class="nav-item"><i class="fa-solid fa-graduation-cap"></i> Capacitaciones</a>
+        <a href="/certificaciones.html"class="nav-item"><i class="fa-solid fa-certificate"></i> Certificaciones</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Gestión</p>
+        <a href="/desvinculacion.html" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i> Desvinculación</a>
+        <a href="/zonas.html"          class="nav-item"><i class="fa-solid fa-map-location-dot"></i> Zonas</a>
+        <a href="/auditoria.html"      class="nav-item active"><i class="fa-solid fa-scroll"></i> Auditoría</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUsername">Cargando...</div>
+          <div class="user-role" id="sidebarRole">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Cerrar sesión">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-scroll" style="color:var(--accent);margin-right:10px"></i>Auditoría y Reportes</h1>
+        <p>Control de calidad, checklists de higiene y exportación de datos (Excel)</p>
+      </div>
+      <button class="btn btn-primary" onclick="openNuevaAuditoria()"><i class="fa-solid fa-plus"></i> Nueva Auditoría</button>
+    </header>
+
+    <main class="page-content audit-grid">
+      
+      <!-- Panel de Auditorías Recientes -->
+      <div class="card" style="margin-top:0">
+        <h3 style="margin:0 0 16px"><i class="fa-solid fa-clipboard-check"></i> Registro de Auditorías</h3>
+        <div id="listAuditorias">
+          <div style="text-align:center;padding:40px"><i class="fa-solid fa-spinner fa-spin fa-2x"></i></div>
+        </div>
+      </div>
+
+      <!-- Centro de Reportes -->
+      <div>
+        <div class="rep-card">
+          <div class="rep-icon"><i class="fa-regular fa-file-excel"></i></div>
+          <h4 style="margin:0 0 5px;font-size:1.1rem;color:var(--text-primary)">Reporte General</h4>
+          <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:20px">Descargar nómina completa, sucursales y contratos activos.</p>
+          <button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="descargarExcel()">
+            <i class="fa-solid fa-download"></i> Descargar Excel
+          </button>
+        </div>
+        
+        <div class="rep-card" style="margin-top:20px;border-color:rgba(255,255,255,0.05)">
+          <div class="rep-icon" style="color:#ff4d4f"><i class="fa-regular fa-file-pdf"></i></div>
+          <h4 style="margin:0 0 5px;font-size:1.1rem;color:var(--text-primary)">Reporte de Calidad</h4>
+          <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:20px">Exportación en PDF de los puntajes promedios. (Próximamente)</p>
+          <button class="btn btn-secondary" style="width:100%;justify-content:center" disabled>
+            <i class="fa-solid fa-lock"></i> PDF
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: NUEVA AUDITORÍA
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalNuevaAudit">
+  <div class="modal" style="max-width:700px;max-height:90vh;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <div>
+        <h3>Iniciar Auditoría de Zona</h3>
+        <p>Completa el checklist de higiene y seguridad</p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalNuevaAudit')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <div class="modal-body" style="overflow-y:auto;flex:1">
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label>Zona a Auditar *</label>
+          <select class="form-control" id="fZona" required></select>
+        </div>
+        <div class="form-group">
+          <label>Tipo de Auditoría</label>
+          <select class="form-control" id="fTipo">
+            <option value="HIGIENE">Higiene y Limpieza</option>
+            <option value="SEGURIDAD">Seguridad Ocupacional</option>
+            <option value="MANTENIMIENTO">Mantenimiento de Equipos</option>
+          </select>
+        </div>
+      </div>
+      
+      <h4 style="margin:20px 0 10px;font-size:.9rem;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:5px">Checklist de Evaluación</h4>
+      <div id="checklistContainer">
+        <!-- Generado dinámicamente -->
+      </div>
+      
+      <div class="form-group" style="margin-top:20px">
+        <label>Observaciones Generales</label>
+        <textarea class="form-control" id="fObs" rows="3" placeholder="Comentarios adicionales..."></textarea>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalNuevaAudit')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarAuditoria()"><i class="fa-solid fa-save"></i> Finalizar Auditoría</button>
+    </div>
+  </div>
+</div>
+
+<script src="./js/auth.js"></script>
+<script src="./js/auditoria.js"></script>
+</body>
+</html>

@@ -19,6 +19,13 @@ const marcacionRoutes = require('./routes/marcacionRoutes');
 const vacacionesRoutes = require('./routes/vacacionesRoutes');
 const licenciaRoutes  = require('./routes/licenciaRoutes');
 const planillaRoutes  = require('./routes/planillaRoutes');
+const vacanteRoutes        = require('./routes/vacanteRoutes');
+const evalDesempenoRoutes  = require('./routes/evaluacionDesempenoRoutes');
+const capacitacionRoutes   = require('./routes/capacitacionRoutes');
+const desvinculacionRoutes = require('./routes/desvinculacionRoutes');
+const certificacionRoutes  = require('./routes/certificacionRoutes');
+const zonaRoutes           = require('./routes/zonaRoutes');
+const auditoriaRoutes      = require('./routes/auditoriaRoutes');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -46,6 +53,13 @@ app.use('/api/marcaciones', marcacionRoutes);
 app.use('/api/vacaciones',  vacacionesRoutes);
 app.use('/api/licencias',   licenciaRoutes);
 app.use('/api/planillas',   planillaRoutes);
+app.use('/api/vacantes',       vacanteRoutes);
+app.use('/api/evaluaciones',    evalDesempenoRoutes);
+app.use('/api/capacitaciones',  capacitacionRoutes);
+app.use('/api/desvinculacion',  desvinculacionRoutes);
+app.use('/api/certificaciones', certificacionRoutes);
+app.use('/api/zonas',           zonaRoutes);
+app.use('/api/auditoria',       auditoriaRoutes);
 
 // ── Ruta raíz → login ───────────────────────────────────
 app.get('/', (req, res) => {

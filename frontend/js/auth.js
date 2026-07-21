@@ -21,7 +21,8 @@ function requireAuth() {
 
 async function apiFetch(endpoint, options = {}) {
   const token = getToken();
-  const res = await fetch(`${API}${endpoint}`, {
+  const url = endpoint.startsWith('/api') ? `http://localhost:3000${endpoint}` : `${API}${endpoint}`;
+  const res = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { 'Authorization': `Bearer ${token}` } : {})

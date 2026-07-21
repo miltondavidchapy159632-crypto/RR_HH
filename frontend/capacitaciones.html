@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCGRH — Capacitaciones</title>
+  <meta name="description" content="Gestión de cursos, sesiones de capacitación y evaluación del personal — Restaurante del Futuro"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/style.css"/>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="sidebar-brand-text"><h2>SCGRH</h2><p>Restaurante del Futuro</p></div>
+    </div>
+    <nav>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Principal</p>
+        <a href="/dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Organización</p>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
+        <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Personas</p>
+        <a href="/colaboradores.html"  class="nav-item"><i class="fa-solid fa-users"></i> Colaboradores</a>
+        <a href="/contratos.html"      class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="/reclutamiento.html"  class="nav-item"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Operaciones</p>
+        <a href="/turnos.html"      class="nav-item"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
+        <a href="/marcaciones.html" class="nav-item"><i class="fa-solid fa-clock"></i> Asistencias</a>
+        <a href="/vacaciones.html"  class="nav-item"><i class="fa-solid fa-umbrella-beach"></i> Vacaciones</a>
+        <a href="/licencias.html"   class="nav-item"><i class="fa-solid fa-notes-medical"></i> Licencias</a>
+        <a href="/planillas.html"   class="nav-item"><i class="fa-solid fa-money-check-dollar"></i> Planillas</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Talento</p>
+        <a href="/evaluaciones.html"   class="nav-item"><i class="fa-solid fa-star-half-stroke"></i> Evaluaciones</a>
+        <a href="/capacitaciones.html" class="nav-item active"><i class="fa-solid fa-graduation-cap"></i> Capacitaciones</a>
+        <a href="/certificaciones.html"class="nav-item"><i class="fa-solid fa-certificate"></i> Certificaciones</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Gestión</p>
+        <a href="/desvinculacion.html" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i> Desvinculación</a>
+        <a href="/zonas.html"          class="nav-item"><i class="fa-solid fa-map-location-dot"></i> Zonas</a>
+        <a href="/auditoria.html"      class="nav-item"><i class="fa-solid fa-scroll"></i> Auditoría</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUsername">Cargando...</div>
+          <div class="user-role" id="sidebarRole">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Cerrar sesión">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-graduation-cap" style="color:#a78bfa;margin-right:10px"></i>Capacitaciones</h1>
+        <p>Programa de formación y desarrollo del personal del restaurante</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" onclick="openNuevoCurso()">
+          <i class="fa-solid fa-book-open"></i> Nuevo Curso
+        </button>
+        <button class="btn btn-primary" onclick="openNuevaSesion()">
+          <i class="fa-solid fa-plus"></i> Programar Sesión
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- STATS -->
+      <div class="stats-grid" id="statsGrid" style="grid-template-columns:repeat(5,1fr)">
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+      </div>
+
+      <!-- TABS -->
+      <div class="rec-tabs" id="mainTabs">
+        <button class="rec-tab active" id="tab-sesiones" onclick="switchTab('sesiones')">
+          <i class="fa-solid fa-calendar-days"></i> Sesiones
+        </button>
+        <button class="rec-tab" id="tab-cursos" onclick="switchTab('cursos')">
+          <i class="fa-solid fa-book-open"></i> Catálogo de Cursos
+        </button>
+      </div>
+
+      <!-- ── VISTA SESIONES ─────────────────────────────── -->
+      <div id="view-sesiones">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+          <div class="search-box" style="flex:1;min-width:200px">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchSesion" placeholder="Buscar sesión o curso..." oninput="filterSesiones(this.value)"/>
+          </div>
+          <select id="filtroEstadoSesion" class="form-control" style="width:155px;font-size:.82rem" onchange="filterSesiones(document.getElementById('searchSesion').value)">
+            <option value="">Todos los estados</option>
+            <option value="PROGRAMADA">Programada</option>
+            <option value="EN_CURSO">En Curso</option>
+            <option value="REALIZADA">Realizada</option>
+            <option value="CANCELADA">Cancelada</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" onclick="loadSesiones()">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+
+        <!-- Cards grid -->
+        <div id="sesionesGrid" class="cap-grid"></div>
+      </div>
+
+      <!-- ── VISTA CURSOS ───────────────────────────────── -->
+      <div id="view-cursos" style="display:none">
+        <div class="table-container">
+          <div class="table-toolbar">
+            <span class="table-title">Catálogo de Cursos</span>
+            <button class="btn btn-secondary btn-sm" onclick="loadCursos()">
+              <i class="fa-solid fa-rotate-right"></i> Actualizar
+            </button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre del Curso</th>
+                <th>Modalidad</th>
+                <th>Horas</th>
+                <th>Costo</th>
+                <th>Proveedor</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaCursos"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: Nueva Sesión ═══════════════════════════ -->
+<div class="modal-overlay" id="modalSesion">
+  <div class="modal" style="max-width:660px">
+    <div class="modal-header">
+      <div>
+        <h3 id="tituloModalSes">Programar Sesión de Capacitación</h3>
+        <p id="subModalSes">Configura los detalles de la sesión formativa</p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalSesion')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formSesion" onsubmit="submitSesion(event)">
+      <div class="modal-body">
+        <div class="form-grid form-grid-2">
+          <div class="form-group span-2">
+            <label>Curso *</label>
+            <select class="form-control" id="fSCurso" required onchange="onCursoChange()">
+              <option value="">— Seleccionar curso —</option>
+            </select>
+          </div>
+          <!-- Info del curso seleccionado -->
+          <div id="cursoInfoPanel" style="display:none" class="form-group span-2">
+            <div style="background:#0d1117;border-radius:8px;padding:12px;border:1px solid #30363d;display:flex;gap:20px;font-size:.8rem">
+              <span><i class="fa-solid fa-clock" style="color:var(--accent)"></i> <span id="infoCursoHoras">—</span> h</span>
+              <span><i class="fa-solid fa-dollar-sign" style="color:var(--gold)"></i> S/ <span id="infoCursoCosto">—</span></span>
+              <span><i class="fa-solid fa-building" style="color:#a78bfa"></i> <span id="infoCursoProveedor">—</span></span>
+              <span><i class="fa-solid fa-laptop" style="color:#00c896"></i> <span id="infoCursoModalidad">—</span></span>
+            </div>
+          </div>
+          <div class="form-group span-2">
+            <label>Nombre de la sesión (opcional)</label>
+            <input class="form-control" id="fSNombre" type="text" placeholder="Ej: HACCP — Grupo A — Turno Mañana"/>
+          </div>
+          <div class="form-group">
+            <label>Fecha y hora inicio *</label>
+            <input class="form-control" id="fSFechaInicio" type="datetime-local" required/>
+          </div>
+          <div class="form-group">
+            <label>Fecha y hora fin</label>
+            <input class="form-control" id="fSFechaFin" type="datetime-local"/>
+          </div>
+          <div class="form-group">
+            <label>Sede</label>
+            <select class="form-control" id="fSSucursal">
+              <option value="">— Todas las sedes —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Capacidad máxima</label>
+            <input class="form-control" id="fSCapacidad" type="number" min="1" placeholder="Ilimitada si se deja en blanco"/>
+          </div>
+          <div class="form-group">
+            <label>Instructor</label>
+            <input class="form-control" id="fSInstructor" type="text" placeholder="Nombre del instructor o empresa"/>
+          </div>
+          <div class="form-group">
+            <label>Lugar / Plataforma</label>
+            <input class="form-control" id="fSLugar" type="text" placeholder="Sala B / https://meet.google.com/..."/>
+          </div>
+          <div class="form-group">
+            <label>Estado inicial</label>
+            <select class="form-control" id="fSEstado">
+              <option value="PROGRAMADA">Programada</option>
+              <option value="EN_CURSO">En Curso</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalSesion')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitSes">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar Sesión
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: Nuevo Curso ════════════════════════════ -->
+<div class="modal-overlay" id="modalCurso">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div>
+        <h3 id="tituloModalCurso">Nuevo Curso</h3>
+        <p>Agrega un curso al catálogo formativo del restaurante</p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalCurso')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formCurso" onsubmit="submitCurso(event)">
+      <div class="modal-body">
+        <div class="form-grid form-grid-2">
+          <div class="form-group span-2">
+            <label>Nombre del Curso *</label>
+            <input class="form-control" id="fCNombre" type="text" placeholder="Ej: HACCP — Inocuidad Alimentaria" required/>
+          </div>
+          <div class="form-group span-2">
+            <label>Descripción</label>
+            <textarea class="form-control" id="fCDesc" rows="2" placeholder="Objetivos y contenido del curso..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Modalidad</label>
+            <select class="form-control" id="fCModalidad">
+              <option value="PRESENCIAL">Presencial</option>
+              <option value="VIRTUAL">Virtual</option>
+              <option value="MIXTO">Mixto</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Duración (horas)</label>
+            <input class="form-control" id="fCHoras" type="number" min="0" step="0.5" placeholder="8"/>
+          </div>
+          <div class="form-group">
+            <label>Costo (S/)</label>
+            <input class="form-control" id="fCCosto" type="number" min="0" step="0.01" placeholder="0.00"/>
+          </div>
+          <div class="form-group">
+            <label>Proveedor / Institución</label>
+            <input class="form-control" id="fCProveedor" type="text" placeholder="SENCE, INDECI, etc."/>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalCurso')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitCurso">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar Curso
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: Detalle sesión + asistentes ═══════════ -->
+<div class="modal-overlay" id="modalDetalleSes">
+  <div class="modal" style="max-width:880px">
+    <div class="modal-header">
+      <div>
+        <h3 id="detSesTotitulo">Detalle de Sesión</h3>
+        <p id="detSesSubtitulo">Participantes y evaluaciones</p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalDetalleSes')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="detSesBody">
+      <div style="text-align:center;padding:50px"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--accent)"></i></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL: Inscribir participante ════════════════ -->
+<div class="modal-overlay" id="modalInscribir">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div><h3>Inscribir Participante</h3><p id="subInscribir">Sesión seleccionada</p></div>
+      <button class="btn-close-modal" onclick="closeModal('modalInscribir')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formInscribir" onsubmit="submitInscribir(event)">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Colaborador (Contrato Vigente) *</label>
+          <select class="form-control" id="fInscColaborador" required>
+            <option value="">— Seleccionar —</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalInscribir')">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-user-plus"></i> Inscribir</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+/* ══ Tabs (reuso del estilo de reclutamiento) ═══ */
+.rec-tabs { display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0; }
+.rec-tab  { padding:10px 20px;background:transparent;border:none;color:var(--text-muted);font-size:.85rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:var(--transition);display:flex;align-items:center;gap:7px;margin-bottom:-1px; }
+.rec-tab:hover { color:var(--text-primary); }
+.rec-tab.active { color:#a78bfa;border-bottom-color:#a78bfa; }
+
+/* ══ Cards grid de sesiones ══════════════════════ */
+.cap-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px; }
+.cap-card {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:var(--radius); padding:20px; position:relative;
+  transition:var(--transition); overflow:hidden;
+}
+.cap-card::before {
+  content:''; position:absolute; top:0;left:0;width:4px;height:100%;
+  background:var(--cap-color, var(--accent));
+}
+.cap-card:hover { border-color:var(--cap-color, var(--accent)); transform:translateY(-2px); }
+.cap-card-head  { display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px; }
+.cap-card-curso { font-size:.72rem;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px; }
+.cap-card-sesion{ font-size:.92rem;font-weight:700;color:var(--text-primary);line-height:1.3; }
+.cap-card-meta  { display:flex;flex-wrap:wrap;gap:10px;margin:10px 0;font-size:.78rem;color:var(--text-muted); }
+.cap-card-meta span { display:flex;align-items:center;gap:5px; }
+.cap-card-meta i { color:var(--cap-color,var(--accent)); }
+.cap-card-progress { margin:12px 0 14px; }
+.cap-card-progress-bar { height:5px;background:var(--bg-surface);border-radius:10px;overflow:hidden; }
+.cap-card-progress-fill { height:100%;border-radius:10px;background:var(--cap-color,var(--accent));transition:width .4s; }
+.cap-card-progress-label { font-size:.72rem;color:var(--text-muted);margin-top:4px; }
+.cap-card-actions { display:flex;gap:6px;flex-wrap:wrap; }
+
+/* ══ Estado badges ══════════════════════════════ */
+.ses-badge {
+  display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
+  border-radius:12px;font-size:.7rem;font-weight:700;
+}
+.ses-badge.PROGRAMADA { background:rgba(45,126,248,.15); color:var(--accent); }
+.ses-badge.EN_CURSO   { background:rgba(240,165,0,.15);  color:var(--gold); }
+.ses-badge.REALIZADA  { background:rgba(0,200,150,.15);  color:var(--success); }
+.ses-badge.CANCELADA  { background:rgba(255,77,79,.15);  color:#ff4d4f; }
+
+/* ══ Asistencia table ═══════════════════════════ */
+.asistencia-row td { padding:10px 12px;font-size:.82rem;border-bottom:1px solid var(--border); }
+.asistencia-row:last-child td { border-bottom:none; }
+.toggle-asistio {
+  display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+  background:var(--bg-surface);border:1px solid var(--border);
+  padding:4px 12px;border-radius:8px;font-size:.78rem;transition:var(--transition);
+}
+.toggle-asistio.si  { background:rgba(0,200,150,.15);border-color:#00c89644;color:#00c896; }
+.toggle-asistio.no  { background:rgba(255,77,79,.15); border-color:#ff4d4f44;color:#ff4d4f; }
+.puntaje-input { width:70px;text-align:center; }
+
+@media (max-width:900px) { .cap-grid { grid-template-columns:1fr; } }
+</style>
+
+<script src="./js/auth.js"></script>
+<script src="./js/capacitaciones.js"></script>
+</body>
+</html>

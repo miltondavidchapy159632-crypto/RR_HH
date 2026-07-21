@@ -1,259 +1,145 @@
-// ─────────────────────────────────────────────────────────────
-//  SEED — Datos iniciales del sistema SCGRH (Incluye Asistencia y Catálogos)
-//  Ejecutar: node seed.js
-// ─────────────────────────────────────────────────────────────
 require('dotenv').config();
-const bcrypt     = require('bcryptjs');
-const { connectDB, getPool, sql } = require('./config/database');
+const { sql, connectDB } = require('./config/database');
 
 async function seed() {
-  await connectDB();
-  const pool = getPool();
-  console.log('\n🌱 Insertando datos iniciales...\n');
+  const pool = await connectDB();
+  const req = () => pool.request();
+  
+  try {
+    console.log('--- Iniciando Seeding ---');
+    
+    // Disable constraints temporarily for robust insert
+    await req().query(`EXEC sp_msforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all"`);
 
-  // 1. Empresa de ejemplo
-  await pool.request()
-    .input('ruc',   sql.NVarChar, '20123456789')
-    .input('rs',    sql.NVarChar, 'Restaurantes El Sabor SAC')
-    .input('nc',    sql.NVarChar, 'El Sabor')
-    .input('dir',   sql.NVarChar, 'Av. Grau 123, Piura')
-    .input('email', sql.NVarChar, 'admin@elsabor.pe')
-    .query(`
-      IF NOT EXISTS (SELECT 1 FROM empresas WHERE ruc = @ruc)
-        INSERT INTO empresas (ruc, razon_social, nombre_comercial, direccion_fiscal, email_corporativo)
-        VALUES (@ruc, @rs, @nc, @dir, @email)
+    // Clear tables
+    const tables = [
+      'desvinculaciones', 'solicitudes_desvinculacion', 'certificaciones_empleado', 'vacantes', 
+      'contratos', 'expedientes_laborales', 'personas', 
+      'puestos', 'cargos', 'areas', 'sucursales', 'empresas', 'certificaciones'
+    ];
+    for (const table of tables) {
+      try {
+        await req().query(`DELETE FROM ${table}; DBCC CHECKIDENT('${table}', RESEED, 0);`);
+      } catch (e) {
+        await req().query(`DELETE FROM ${table};`).catch(() => {});
+      }
+    }
+
+    // Empresas
+    await req().query(`
+      INSERT INTO empresas (razon_social, ruc, nombre_comercial, activo) VALUES ('Restaurante del Futuro S.A.C.', '20123456789', 'Restaurante del Futuro', 1);
     `);
-  console.log('  ✔ Empresa creada');
+    
+    // Sucursales
+    await req().query(`
+      INSERT INTO sucursales (empresa_id, codigo, nombre, activo) VALUES 
+        (1, 'SUC-01', 'Sede Central Piura', 1),
+        (1, 'SUC-02', 'Sede Castilla', 1),
+        (1, 'SUC-03', 'Sede Centro Comercial', 1);
+    `);
+    
+    // Areas
+    await req().query(`
+      INSERT INTO areas (empresa_id, codigo, nombre, activo) VALUES 
+        (1, 'A01', 'Cocina', 1),
+        (1, 'A02', 'Salon', 1),
+        (1, 'A03', 'Administracion', 1);
+    `);
+    
+    // Cargos
+    await req().query(`
+      INSERT INTO cargos (area_id, codigo, nombre, nivel_jerarquico) VALUES 
+        (1, 'C01', 'Chef Ejecutivo', 2),
+        (1, 'C02', 'Ayudante de Cocina', 4),
+        (2, 'C03', 'Jefe de Salon', 3),
+        (2, 'C04', 'Mozo', 5),
+        (3, 'C05', 'Administrador', 2),
+        (3, 'C06', 'Cajero', 4);
+    `);
+    
+    // Puestos
+    await req().query(`
+      INSERT INTO puestos (cargo_id, sucursal_id, codigo, cantidad_plazas) VALUES 
+        (1, 1, 'P01', 1),
+        (2, 1, 'P02', 2),
+        (2, 2, 'P03', 1),
+        (4, 1, 'P04', 3),
+        (5, 1, 'P05', 1),
+        (6, 1, 'P06', 2),
+        (4, 2, 'P07', 2);
+    `);
 
-  const empRes = await pool.request()
-    .input('ruc', sql.NVarChar, '20123456789')
-    .query('SELECT id FROM empresas WHERE ruc = @ruc');
-  const empresaId = empRes.recordset[0].id;
+    // Personas
+    await req().query(`
+      INSERT INTO personas (tipo_doc_id, nro_documento, nombres, apellido_paterno, usuario_id) VALUES 
+        (1, '70000001', 'Juan', 'Perez', 101),
+        (1, '70000002', 'Maria', 'Gomez', 102),
+        (1, '70000003', 'Carlos', 'Torres', 103),
+        (1, '70000004', 'Ana', 'Vargas', 104),
+        (1, '70000005', 'Luis', 'Castro', 105),
+        (1, '70000006', 'Sofia', 'Rios', 106);
+    `);
 
-  // 2. Sucursales
-  const sucursales = [
-    { codigo: 'SUC-001', nombre: 'Sede Central Piura',  dir: 'Av. Grau 123' },
-    { codigo: 'SUC-002', nombre: 'Sede Castilla',        dir: 'Jr. Lima 456' },
-    { codigo: 'SUC-003', nombre: 'Sede Centro Comercial',dir: 'CC Real Plaza L-12' },
-  ];
-  for (const s of sucursales) {
-    await pool.request()
-      .input('eid',    sql.Int,         empresaId)
-      .input('codigo', sql.NVarChar,    s.codigo)
-      .input('nombre', sql.NVarChar,    s.nombre)
-      .input('dir',    sql.NVarChar,    s.dir)
-      .query(`
-        IF NOT EXISTS (SELECT 1 FROM sucursales WHERE codigo = @codigo)
-          INSERT INTO sucursales (empresa_id, codigo, nombre, direccion)
-          VALUES (@eid, @codigo, @nombre, @dir)
-      `);
+    // Expedientes Laborales
+    await req().query(`
+      INSERT INTO expedientes_laborales (persona_id, codigo, estado, creado_por) VALUES 
+        (1, 'EXP-001', 'ACTIVO', 1),
+        (2, 'EXP-002', 'ACTIVO', 1),
+        (3, 'EXP-003', 'ACTIVO', 1),
+        (4, 'EXP-004', 'ACTIVO', 1),
+        (5, 'EXP-005', 'CERRADO', 1),
+        (6, 'EXP-006', 'CERRADO', 1);
+    `);
+
+    // Contratos
+    await req().query(`
+      INSERT INTO contratos (expediente_id, puesto_id, tipo_contrato_id, codigo, fecha_inicio, fecha_fin, salario_base, estado, creado_por) VALUES 
+        (1, 1, 1, 'CT-01', '2023-01-01', NULL, 3000, 'VIGENTE', 1),
+        (2, 4, 1, 'CT-02', '2023-02-01', NULL, 1800, 'VIGENTE', 1),
+        (3, 5, 2, 'CT-03', '2025-01-01', DATEADD(day, 15, GETDATE()), 1200, 'VIGENTE', 1),
+        (4, 6, 2, 'CT-04', '2025-02-01', DATEADD(day, 5, GETDATE()), 1200, 'VIGENTE', 1),
+        (5, 2, 2, 'CT-05', '2024-01-01', '2024-06-30', 1100, 'FINALIZADO', 1),
+        (6, 7, 2, 'CT-06', '2024-03-01', '2024-09-30', 1200, 'FINALIZADO', 1);
+    `);
+
+    // Vacantes
+    await req().query(`
+      INSERT INTO vacantes (puesto_id, sucursal_id, titulo, descripcion, cantidad_requerida, presupuesto_aprobado, estado, creado_por) VALUES 
+        (2, 3, 'Ayudante de Cocina - Fines de semana', 'Se busca ayudante', 2, 1, 'PUBLICADA', 1),
+        (4, 2, 'Mozo - Turno Noche', 'Atencion nocturna', 3, 1, 'PUBLICADA', 1);
+    `);
+
+    // Certificaciones
+    await req().query(`
+      INSERT INTO certificaciones_empleado (contrato_id, certificacion_id, nro_certificado, fecha_obtencion, fecha_vencimiento, estado, registrado_por) VALUES 
+        (1, 1, 'CERT-001', GETDATE(), DATEADD(year, 1, GETDATE()), 'Vigente', 1),
+        (2, 1, 'CERT-002', GETDATE(), DATEADD(day, 20, GETDATE()), 'Por_Vencer', 1),
+        (3, 2, 'CERT-003', '2023-01-01', '2024-01-01', 'Vencida', 1);
+    `);
+
+    // Desvinculaciones (Solicitudes)
+    await req().query(`
+      INSERT INTO solicitudes_desvinculacion (contrato_id, motivo_cese_id, fecha_solicitud, fecha_cese_propuesta, estado, registrado_por) VALUES 
+        (5, 1, DATEADD(month, -2, GETDATE()), DATEADD(month, -2, GETDATE()), 'APROBADA', 1),
+        (6, 2, DATEADD(month, -1, GETDATE()), DATEADD(month, -1, GETDATE()), 'APROBADA', 1);
+    `);
+
+    // Desvinculaciones (Real)
+    await req().query(`
+      INSERT INTO desvinculaciones (contrato_id, motivo, detalle, fecha_cese, estado_liquidacion) VALUES 
+        (5, 'RENUNCIA', 'Mejor oferta laboral', DATEADD(month, -2, GETDATE()), 'PAGADA'),
+        (6, 'FIN_CONTRATO', 'Termino de temporada', DATEADD(month, -1, GETDATE()), 'PAGADA');
+    `);
+
+    // Re-enable constraints
+    await req().query(`EXEC sp_msforeachtable "ALTER TABLE ? WITH CHECK CHECK CONSTRAINT all"`);
+    
+    console.log('--- Datos ficticios insertados exitosamente ---');
+    process.exit(0);
+  } catch (err) {
+    console.error('Error seeding data:', err);
+    process.exit(1);
   }
-  console.log('  ✔ Sucursales creadas (3)');
-
-  // 3. Áreas
-  const areas = [
-    { codigo: 'AREA-OPE', nombre: 'Operaciones' },
-    { codigo: 'AREA-ADM', nombre: 'Administración' },
-    { codigo: 'AREA-COC', nombre: 'Cocina' },
-    { codigo: 'AREA-ATN', nombre: 'Atención al Cliente' },
-    { codigo: 'AREA-LOG', nombre: 'Logística' },
-  ];
-  for (const a of areas) {
-    await pool.request()
-      .input('eid',    sql.Int,      empresaId)
-      .input('codigo', sql.NVarChar, a.codigo)
-      .input('nombre', sql.NVarChar, a.nombre)
-      .query(`
-        IF NOT EXISTS (SELECT 1 FROM areas WHERE codigo = @codigo)
-          INSERT INTO areas (empresa_id, codigo, nombre)
-          VALUES (@eid, @codigo, @nombre)
-      `);
-  }
-  console.log('  ✔ Áreas creadas (5)');
-
-  // 4. Cargos
-  const areaAdmRes = await pool.request()
-    .input('c', sql.NVarChar, 'AREA-ADM')
-    .query('SELECT id FROM areas WHERE codigo = @c');
-  const areaOpeRes = await pool.request()
-    .input('c', sql.NVarChar, 'AREA-OPE')
-    .query('SELECT id FROM areas WHERE codigo = @c');
-  const areaAtnRes = await pool.request()
-    .input('c', sql.NVarChar, 'AREA-ATN')
-    .query('SELECT id FROM areas WHERE codigo = @c');
-
-  const areaAdmId = areaAdmRes.recordset[0].id;
-  const areaOpeId = areaOpeRes.recordset[0].id;
-  const areaAtnId = areaAtnRes.recordset[0].id;
-
-  const cargos = [
-    { area: areaAdmId, codigo: 'CARG-GER', nombre: 'Gerente General',     sMin: 5000, sMax: 8000 },
-    { area: areaAdmId, codigo: 'CARG-ADM', nombre: 'Asistente Administrativo', sMin: 1500, sMax: 2500 },
-    { area: areaOpeId, codigo: 'CARG-SUP', nombre: 'Supervisor de Turno',  sMin: 2000, sMax: 3500 },
-    { area: areaAtnId, codigo: 'CARG-CAJ', nombre: 'Cajero/a',             sMin: 1050, sMax: 1600 },
-    { area: areaAtnId, codigo: 'CARG-MOZ', nombre: 'Mozo/Moza',            sMin: 1050, sMax: 1500 },
-  ];
-  for (const c of cargos) {
-    await pool.request()
-      .input('aid',    sql.Int,      c.area)
-      .input('codigo', sql.NVarChar, c.codigo)
-      .input('nombre', sql.NVarChar, c.nombre)
-      .input('smin',   sql.Decimal,  c.sMin)
-      .input('smax',   sql.Decimal,  c.sMax)
-      .query(`
-        IF NOT EXISTS (SELECT 1 FROM cargos WHERE codigo = @codigo)
-          INSERT INTO cargos (area_id, codigo, nombre, salario_min, salario_max)
-          VALUES (@aid, @codigo, @nombre, @smin, @smax)
-      `);
-  }
-  console.log('  ✔ Cargos creadas (5)');
-
-  // 5. Puestos (Plazas Libres)
-  const sucursalPiuraRes = await pool.request()
-    .input('c', sql.NVarChar, 'SUC-001')
-    .query('SELECT id FROM sucursales WHERE codigo = @c');
-  const sucursalPiuraId = sucursalPiuraRes.recordset[0].id;
-
-  const cargoMozRes = await pool.request()
-    .input('c', sql.NVarChar, 'CARG-MOZ')
-    .query('SELECT id FROM cargos WHERE codigo = @c');
-  const cargoMozId = cargoMozRes.recordset[0].id;
-
-  await pool.request()
-    .input('cargo_id',    sql.Int,      cargoMozId)
-    .input('sucursal_id', sql.Int,      sucursalPiuraId)
-    .input('codigo',      sql.NVarChar, 'PUESTO-MOZO-01')
-    .query(`
-      IF NOT EXISTS (SELECT 1 FROM puestos WHERE codigo = @codigo)
-        INSERT INTO puestos (cargo_id, sucursal_id, codigo, cantidad_plazas, plazas_ocupadas)
-        VALUES (@cargo_id, @sucursal_id, @codigo, 5, 0)
-    `);
-  console.log('  ✔ Puestos/Plazas creadas');
-
-  // 6. Catálogos Maestros (Documentos, Sexos, Estados Civil, AFP, Bancos)
-  await pool.request().query(`
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_documento WHERE codigo = 'DNI')
-      INSERT INTO cat_tipo_documento (codigo, descripcion) VALUES ('DNI', 'Documento Nacional de Identidad');
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_documento WHERE codigo = 'RUC')
-      INSERT INTO cat_tipo_documento (codigo, descripcion) VALUES ('RUC', 'Registro Único de Contribuyente');
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_documento WHERE codigo = 'CE')
-      INSERT INTO cat_tipo_documento (codigo, descripcion) VALUES ('CE', 'Carnet de Extranjería');
-
-    IF NOT EXISTS (SELECT 1 FROM cat_sexo WHERE codigo = 'M')
-      INSERT INTO cat_sexo (codigo, descripcion) VALUES ('M', 'Masculino');
-    IF NOT EXISTS (SELECT 1 FROM cat_sexo WHERE codigo = 'F')
-      INSERT INTO cat_sexo (codigo, descripcion) VALUES ('F', 'Femenino');
-
-    IF NOT EXISTS (SELECT 1 FROM cat_estado_civil WHERE codigo = 'SOLTERO')
-      INSERT INTO cat_estado_civil (codigo, descripcion) VALUES ('SOLTERO', 'Soltero/a');
-    IF NOT EXISTS (SELECT 1 FROM cat_estado_civil WHERE codigo = 'CASADO')
-      INSERT INTO cat_estado_civil (codigo, descripcion) VALUES ('CASADO', 'Casado/a');
-    IF NOT EXISTS (SELECT 1 FROM cat_estado_civil WHERE codigo = 'CONVIVIENTE')
-      INSERT INTO cat_estado_civil (codigo, descripcion) VALUES ('CONVIVIENTE', 'Conviviente');
-
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_cuenta_bancaria WHERE codigo = 'AHORROS')
-      INSERT INTO cat_tipo_cuenta_bancaria (codigo, descripcion) VALUES ('AHORROS', 'Cuenta Ahorros');
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_cuenta_bancaria WHERE codigo = 'CORRIENTE')
-      INSERT INTO cat_tipo_cuenta_bancaria (codigo, descripcion) VALUES ('CORRIENTE', 'Cuenta Corriente');
-
-    IF NOT EXISTS (SELECT 1 FROM cat_banco WHERE codigo = 'BCP')
-      INSERT INTO cat_banco (codigo, nombre) VALUES ('BCP', 'Banco de Crédito del Perú');
-    IF NOT EXISTS (SELECT 1 FROM cat_banco WHERE codigo = 'BBVA')
-      INSERT INTO cat_banco (codigo, nombre) VALUES ('BBVA', 'BBVA Banco Continental');
-    IF NOT EXISTS (SELECT 1 FROM cat_banco WHERE codigo = 'INTERBANK')
-      INSERT INTO cat_banco (codigo, nombre) VALUES ('INTERBANK', 'Interbank');
-
-    IF NOT EXISTS (SELECT 1 FROM cat_afp WHERE codigo = 'INTEGRA')
-      INSERT INTO cat_afp (codigo, nombre, tasa_comision) VALUES ('INTEGRA', 'AFP Integra', 0.0150);
-    IF NOT EXISTS (SELECT 1 FROM cat_afp WHERE codigo = 'PRIMA')
-      INSERT INTO cat_afp (codigo, nombre, tasa_comision) VALUES ('PRIMA', 'AFP Prima', 0.0160);
-    IF NOT EXISTS (SELECT 1 FROM cat_afp WHERE codigo = 'ONP')
-      INSERT INTO cat_afp (codigo, nombre, tasa_comision) VALUES ('ONP', 'Oficina de Normalización Previsional', 0.1300);
-
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_contrato WHERE codigo = 'INDETERMINADO')
-      INSERT INTO cat_tipo_contrato (codigo, descripcion, requiere_fin) VALUES ('INDETERMINADO', 'Contrato a Plazo Indeterminado', 0);
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_contrato WHERE codigo = 'PLAZO_FIJO')
-      INSERT INTO cat_tipo_contrato (codigo, descripcion, requiere_fin) VALUES ('PLAZO_FIJO', 'Contrato a Plazo Fijo', 1);
-
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_licencia WHERE codigo = 'MEDICA')
-      INSERT INTO cat_tipo_licencia (codigo, descripcion, con_goce_haber, activo) VALUES ('MEDICA', 'Licencia por Enfermedad o Accidente', 1, 1);
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_licencia WHERE codigo = 'MATERNIDAD')
-      INSERT INTO cat_tipo_licencia (codigo, descripcion, con_goce_haber, activo) VALUES ('MATERNIDAD', 'Licencia por Maternidad', 1, 1);
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_licencia WHERE codigo = 'PATERNIDAD')
-      INSERT INTO cat_tipo_licencia (codigo, descripcion, con_goce_haber, activo) VALUES ('PATERNIDAD', 'Licencia por Paternidad', 1, 1);
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_licencia WHERE codigo = 'LUTO')
-      INSERT INTO cat_tipo_licencia (codigo, descripcion, con_goce_haber, activo) VALUES ('LUTO', 'Licencia por Fallecimiento de Familiar', 1, 1);
-    IF NOT EXISTS (SELECT 1 FROM cat_tipo_licencia WHERE codigo = 'PARTICULAR')
-      INSERT INTO cat_tipo_licencia (codigo, descripcion, con_goce_haber, activo) VALUES ('PARTICULAR', 'Licencia Particular (Sin Goce de Haber)', 0, 1);
-  `);
-  console.log('  ✔ Catálogos Maestros rellenados');
-
-  // 7. Turno de prueba (Oficina regular)
-  await pool.request()
-    .input('eid',    sql.Int,      empresaId)
-    .input('codigo', sql.NVarChar, 'TUR-ADM')
-    .input('nombre', sql.NVarChar, 'Horario de Oficina Administrativo')
-    .input('entrada',sql.VarChar,  '08:00')
-    .input('salida', sql.VarChar,  '17:00')
-    .input('tol',    sql.SmallInt, 10)
-    .input('horas',  sql.Decimal,  8.00)
-    .query(`
-      IF NOT EXISTS (SELECT 1 FROM turnos WHERE codigo = @codigo)
-        INSERT INTO turnos (empresa_id, codigo, nombre, hora_entrada, hora_salida, tolerancia_min, horas_diarias, nocturno)
-        VALUES (@eid, @codigo, @nombre, CAST(@entrada AS TIME), CAST(@salida AS TIME), @tol, @horas, 0)
-    `);
-  console.log('  ✔ Turno Administrativo de prueba creado');
-
-  // 8. Rol Admin
-  await pool.request()
-    .input('codigo',  sql.NVarChar, 'ADMIN_SISTEMA')
-    .input('nombre',  sql.NVarChar, 'Administrador del Sistema')
-    .query(`
-      IF NOT EXISTS (SELECT 1 FROM roles WHERE codigo = @codigo)
-        INSERT INTO roles (codigo, nombre) VALUES (@codigo, @nombre)
-    `);
-
-  const rolRes = await pool.request()
-    .input('c', sql.NVarChar, 'ADMIN_SISTEMA')
-    .query('SELECT id FROM roles WHERE codigo = @c');
-  const rolId = rolRes.recordset[0].id;
-
-  // 9. Usuario administrador
-  const hash = await bcrypt.hash('Admin123!', 10);
-  await pool.request()
-    .input('username', sql.NVarChar, 'admin')
-    .input('email',    sql.NVarChar, 'admin@scgrh.pe')
-    .input('hash',     sql.NVarChar, hash)
-    .input('eid',      sql.Int,      empresaId)
-    .query(`
-      IF NOT EXISTS (SELECT 1 FROM usuarios WHERE username = @username)
-        INSERT INTO usuarios (username, email, password_hash, empresa_id)
-        VALUES (@username, @email, @hash, @eid)
-    `);
-
-  const userRes = await pool.request()
-    .input('u', sql.NVarChar, 'admin')
-    .query('SELECT id FROM usuarios WHERE username = @u');
-  const userId = userRes.recordset[0].id;
-
-  await pool.request()
-    .input('uid', sql.Int, userId)
-    .input('rid', sql.Int, rolId)
-    .query(`
-      IF NOT EXISTS (SELECT 1 FROM usuarios_roles WHERE usuario_id = @uid AND rol_id = @rid)
-        INSERT INTO usuarios_roles (usuario_id, rol_id) VALUES (@uid, @rid)
-    `);
-
-  console.log('  ✔ Usuario admin creado');
-  console.log('\n════════════════════════════════════════');
-  console.log('  Usuario: admin');
-  console.log('  Contraseña: Admin123!');
-  console.log('════════════════════════════════════════\n');
-
-  process.exit(0);
 }
 
-seed().catch(err => {
-  console.error('Error en seed:', err);
-  process.exit(1);
-});
+seed();

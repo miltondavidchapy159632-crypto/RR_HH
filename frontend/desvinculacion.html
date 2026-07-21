@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCGRH — Desvinculación de Personal</title>
+  <meta name="description" content="Proceso de Offboarding, liquidaciones y entrega de activos — Restaurante del Futuro"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/style.css"/>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fa-solid fa-users-gear"></i></div>
+      <div class="sidebar-brand-text"><h2>SCGRH</h2><p>Restaurante del Futuro</p></div>
+    </div>
+    <nav>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Principal</p>
+        <a href="/dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Organización</p>
+        <a href="/empresas.html"   class="nav-item"><i class="fa-solid fa-building"></i> Empresas</a>
+        <a href="/sucursales.html" class="nav-item"><i class="fa-solid fa-store"></i> Sucursales</a>
+        <a href="/areas.html"      class="nav-item"><i class="fa-solid fa-sitemap"></i> Áreas</a>
+        <a href="/cargos.html"     class="nav-item"><i class="fa-solid fa-id-badge"></i> Cargos</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Personas</p>
+        <a href="/colaboradores.html"  class="nav-item"><i class="fa-solid fa-users"></i> Colaboradores</a>
+        <a href="/contratos.html"      class="nav-item"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+        <a href="/reclutamiento.html"  class="nav-item"><i class="fa-solid fa-briefcase"></i> Reclutamiento</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Operaciones</p>
+        <a href="/turnos.html"      class="nav-item"><i class="fa-solid fa-business-time"></i> Turnos y Horarios</a>
+        <a href="/marcaciones.html" class="nav-item"><i class="fa-solid fa-clock"></i> Asistencias</a>
+        <a href="/vacaciones.html"  class="nav-item"><i class="fa-solid fa-umbrella-beach"></i> Vacaciones</a>
+        <a href="/licencias.html"   class="nav-item"><i class="fa-solid fa-notes-medical"></i> Licencias</a>
+        <a href="/planillas.html"   class="nav-item"><i class="fa-solid fa-money-check-dollar"></i> Planillas</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Talento</p>
+        <a href="/evaluaciones.html"   class="nav-item"><i class="fa-solid fa-star-half-stroke"></i> Evaluaciones</a>
+        <a href="/capacitaciones.html" class="nav-item"><i class="fa-solid fa-graduation-cap"></i> Capacitaciones</a>
+        <a href="/certificaciones.html"class="nav-item"><i class="fa-solid fa-certificate"></i> Certificaciones</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-label">Gestión</p>
+        <a href="/desvinculacion.html" class="nav-item active"><i class="fa-solid fa-right-from-bracket"></i> Desvinculación</a>
+        <a href="/zonas.html"          class="nav-item"><i class="fa-solid fa-map-location-dot"></i> Zonas</a>
+        <a href="/auditoria.html"      class="nav-item"><i class="fa-solid fa-scroll"></i> Auditoría</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">A</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUsername">Cargando...</div>
+          <div class="user-role" id="sidebarRole">—</div>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Cerrar sesión">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-right-from-bracket" style="color:#ff4d4f;margin-right:10px"></i>Desvinculación (Offboarding)</h1>
+        <p>Gestión de ceses, liquidaciones y recuperación de activos</p>
+      </div>
+      <button class="btn btn-primary" onclick="openNuevaSol()">
+        <i class="fa-solid fa-plus"></i> Nueva Solicitud
+      </button>
+    </header>
+
+    <main class="page-content">
+
+      <!-- STATS -->
+      <div class="stats-grid" id="statsGrid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+        <div class="stat-card blue skeleton" style="height:90px"></div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="card" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:16px 20px;margin-bottom:0">
+        <div class="search-box" style="flex:1;min-width:200px">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchInput" placeholder="Buscar por colaborador o cargo..." oninput="filterSols(this.value)"/>
+        </div>
+        <select id="filtroEstado" class="form-control" style="width:160px;font-size:.82rem" onchange="filterSols(document.getElementById('searchInput').value)">
+          <option value="">Todos los estados</option>
+          <option value="INICIADA">Iniciada</option>
+          <option value="EN_PROCESO">En Proceso</option>
+          <option value="VALIDADA">Validada</option>
+          <option value="APROBADA">Aprobada</option>
+          <option value="CERRADA">Cerrada</option>
+          <option value="CANCELADA">Cancelada</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" onclick="loadSols()">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+      </div>
+
+      <!-- TABLA -->
+      <div class="table-container" style="margin-top:14px">
+        <table>
+          <thead>
+            <tr>
+              <th>Colaborador</th>
+              <th>Cargo / Sede</th>
+              <th>Motivo Cese</th>
+              <th>Fecha Cese</th>
+              <th>Validación</th>
+              <th>Liquidación</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaBody"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: Nueva Solicitud de Desvinculación
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalNuevaSol">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div>
+        <h3>Iniciar Proceso de Desvinculación</h3>
+        <p>Registra la solicitud de cese del colaborador</p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalNuevaSol')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="formNuevaSol" onsubmit="submitNuevaSol(event)">
+      <div class="modal-body">
+        <div class="form-grid form-grid-2">
+          <div class="form-group span-2">
+            <label>Colaborador (Contrato Vigente) *</label>
+            <select class="form-control" id="fNColaborador" required onchange="onColaboradorChange()">
+              <option value="">Cargando colaboradores...</option>
+            </select>
+            <div id="infoAntiguedad" style="font-size:.75rem;color:var(--gold);margin-top:5px;display:none">
+              <i class="fa-solid fa-calendar-check"></i> Antigüedad: <span id="valAntiguedad">—</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Motivo de Cese *</label>
+            <select class="form-control" id="fNMotivo" required>
+              <option value="">Cargando motivos...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fecha de Cese (Propuesta) *</label>
+            <input class="form-control" id="fNFecha" type="date" required/>
+          </div>
+          <div class="form-group span-2">
+            <label>Observaciones / Descripción</label>
+            <textarea class="form-control" id="fNDesc" rows="3"
+                      placeholder="Detalles adicionales sobre el cese, si los hay..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalNuevaSol')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitSol">
+          <i class="fa-solid fa-rocket"></i> Iniciar Proceso
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: Detalle de Desvinculación (Offboarding)
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalDetalle">
+  <div class="modal" style="max-width:960px">
+    <div class="modal-header">
+      <div>
+        <h3 id="detalleTitulo">Offboarding</h3>
+        <p id="detalleSubtitulo">Detalle del proceso de desvinculación</p>
+      </div>
+      <button class="btn-close-modal" onclick="closeModal('modalDetalle')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" style="padding:0;background:var(--bg-body)">
+      <!-- TABS INTERNOS -->
+      <div class="rec-tabs" style="padding:16px 24px 0;background:var(--bg-surface);border-bottom:1px solid var(--border)">
+        <button class="rec-tab active" id="tab-resumen" onclick="switchDetalleTab('resumen')">
+          <i class="fa-solid fa-clipboard-list"></i> Resumen y Validación
+        </button>
+        <button class="rec-tab" id="tab-activos" onclick="switchDetalleTab('activos')">
+          <i class="fa-solid fa-boxes-stacked"></i> Retorno de Activos
+        </button>
+        <button class="rec-tab" id="tab-liquidacion" onclick="switchDetalleTab('liquidacion')">
+          <i class="fa-solid fa-money-check-dollar"></i> Liquidación (LBS)
+        </button>
+      </div>
+
+      <div style="padding:24px" id="detBodyContent">
+        <div style="text-align:center;padding:40px"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--accent)"></i></div>
+      </div>
+    </div>
+    <div class="modal-footer" id="detFooter" style="display:flex;justify-content:space-between;align-items:center">
+      <div id="detEstadoText" style="font-weight:700;font-size:.85rem"></div>
+      <div style="display:flex;gap:10px" id="detAcciones"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ══ Tabs ═══ */
+.rec-tabs { display:flex;gap:4px; }
+.rec-tab  { padding:10px 20px;background:transparent;border:none;color:var(--text-muted);font-size:.85rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:var(--transition);display:flex;align-items:center;gap:7px;margin-bottom:-1px; }
+.rec-tab:hover { color:var(--text-primary); }
+.rec-tab.active { color:#ff4d4f;border-bottom-color:#ff4d4f; } /* Rojo desvinculación */
+
+/* ══ Estado badges ══════════════════════════════ */
+.off-badge {
+  display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
+  border-radius:12px;font-size:.7rem;font-weight:700;border:1px solid transparent;
+}
+.off-badge.INICIADA   { background:rgba(45,126,248,.15); color:#2D7EF8; border-color:#2D7EF844; }
+.off-badge.EN_PROCESO { background:rgba(240,165,0,.15);  color:var(--gold); border-color:rgba(240,165,0,.3); }
+.off-badge.VALIDADA   { background:rgba(167,139,250,.15);color:#a78bfa; border-color:rgba(167,139,250,.3); }
+.off-badge.APROBADA   { background:rgba(0,200,150,.15);  color:var(--success); border-color:rgba(0,200,150,.3); }
+.off-badge.CERRADA    { background:rgba(139,148,158,.15);color:var(--text-muted); border-color:rgba(139,148,158,.3); }
+.off-badge.CANCELADA  { background:rgba(255,77,79,.15);  color:#ff4d4f; border-color:rgba(255,77,79,.3); }
+
+/* ══ Checklist row ══════════════════════════════ */
+.chk-row {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px;background:var(--bg-surface);border:1px solid var(--border);
+  border-radius:8px;margin-bottom:8px;transition:var(--transition);
+}
+.chk-row:hover { border-color:var(--accent); }
+.chk-row.checked { border-color:#00c896;background:rgba(0,200,150,.03); }
+.chk-row.checked .chk-title { text-decoration:line-through;color:var(--text-muted); }
+
+/* ══ Activo table ═══════════════════════════════ */
+.act-table th, .act-table td { padding:10px 12px;font-size:.82rem; }
+.act-table select { font-size:.8rem;padding:4px 8px;border-radius:6px; }
+
+/* ══ Liquidacion card ═══════════════════════════ */
+.liq-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+.liq-card { background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:16px; }
+.liq-item { display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.84rem; }
+.liq-item:last-child { border-bottom:none; }
+.liq-total { display:flex;justify-content:space-between;padding-top:12px;margin-top:8px;border-top:2px dashed var(--border);font-size:1.1rem;font-weight:800;color:var(--gold); }
+</style>
+
+<script src="./js/auth.js"></script>
+<script src="./js/desvinculacion.js"></script>
+</body>
+</html>

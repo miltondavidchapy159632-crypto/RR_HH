@@ -103,7 +103,7 @@ const AuditoriaModel = {
     const res = await pool.request().input('eid', sql.Int, empresa_id).query(`
       SELECT 
         per.nombres + ' ' + per.apellido_paterno + ' ' + ISNULL(per.apellido_materno, '') AS Empleado,
-        per.documento_identidad AS DNI,
+        per.nro_documento AS DNI,
         co.fecha_inicio AS [Fecha Ingreso],
         co.fecha_fin AS [Fecha Fin Contrato],
         co.estado AS Estado,

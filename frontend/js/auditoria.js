@@ -196,6 +196,37 @@ function descargarExcel() {
   });
 }
 
+function descargarPDF() {
+  const token = localStorage.getItem('scgrh_token');
+  if(!token) return;
+  
+  const btn = document.querySelectorAll('.rep-card button')[1];
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+  
+  fetch('http://localhost:3000/api/auditoria/reportes/calidad/pdf', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  })
+  .then(res => {
+    if(!res.ok) throw new Error('Error al generar PDF');
+    return res.blob();
+  })
+  .then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Reporte_Calidad.pdf';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+    btn.innerHTML = '<i class="fa-solid fa-download"></i> Descargar PDF';
+  })
+  .catch(err => {
+    showToast(err.message, 'error');
+    btn.innerHTML = '<i class="fa-solid fa-download"></i> Descargar PDF';
+  });
+}
+
 function esc(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

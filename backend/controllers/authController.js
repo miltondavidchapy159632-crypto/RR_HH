@@ -28,7 +28,7 @@ const authController = {
       await UsuarioModel.resetearIntentos(user.id);
 
       const token = jwt.sign(
-        { id: user.id, username: user.username, email: user.email, rol: user.rol },
+        { id: user.id, username: user.username, email: user.email, rol: user.rol, empresa_id: user.empresa_id },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRY || '8h' }
       );

@@ -64,6 +64,53 @@ const auditoriaController = {
       console.error(err);
       res.status(500).send('Error al generar el reporte');
     }
+  },
+
+  async downloadReporteCalidad(req, res) {
+    try {
+      const PDFDocument = require('pdfkit');
+      const doc = new PDFDocument({ margin: 50 });
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename="reporte_calidad.pdf"');
+      
+      doc.pipe(res);
+      
+      const auditorias = await AuditoriaModel.getAllAuditorias(req.user.empresa_id);
+      
+      doc.fontSize(22).fillColor('#2d7ef8').text('Reporte de Calidad de Auditorías', { align: 'center' });
+      doc.moveDown(0.5);
+      doc.fontSize(10).fillColor('#666666').text(`Generado el: ${new Date().toLocaleString()}`, { align: 'center' });
+      doc.moveDown(2);
+      
+      let promedio = 0;
+      if (auditorias.length > 0) {
+        const sum = auditorias.reduce((acc, a) => acc + (a.puntaje_total || 0), 0);
+        promedio = (sum / auditorias.length).toFixed(1);
+      }
+      
+      doc.fontSize(14).fillColor('#333333').text(`Total Auditorías Realizadas: ${auditorias.length}`);
+      doc.text(`Puntaje Promedio General: ${promedio}%`);
+      doc.moveDown(1.5);
+      
+      doc.fontSize(16).fillColor('#111111').text('Últimas Auditorías Registradas', { underline: true });
+      doc.moveDown(0.8);
+      
+      auditorias.slice(0, 20).forEach(a => {
+        doc.fontSize(12).fillColor('#222222').text(`• Zona: ${a.zona_nombre} (${a.tipo})`);
+        doc.fontSize(10).fillColor('#555555').text(`   Fecha: ${new Date(a.fecha_auditoria).toLocaleDateString()}  |  Auditor: ${a.auditor}  |  Puntaje: ${a.puntaje_total}%`);
+        doc.moveDown(0.5);
+      });
+      
+      if (auditorias.length === 0) {
+        doc.fontSize(12).text('No hay auditorías registradas en el sistema.', { align: 'center' });
+      }
+      
+      doc.end();
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Error al generar el PDF');
+    }
   }
 
 };
